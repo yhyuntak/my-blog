@@ -1,103 +1,42 @@
-# 📚 블로그 프로젝트 문서
+# 📚 Documentation
 
-## 📁 문서 구조
+히포's Tech Blog 프로젝트 문서 모음입니다.
 
-```
-docs/
-├── README.md                    # 이 파일 (문서 인덱스)
-├── progress/                    # 진행 상황 추적
-│   ├── current-status.md       # 현재 상태
-│   ├── phase-1-mvp.md          # Phase 1 진행 상황
-│   ├── phase-2-deployment.md   # Phase 2 진행 상황
-│   ├── phase-3-nextjs.md       # Phase 3 진행 상황
-│   ├── phase-4-optimization.md # Phase 4 진행 상황
-│   └── phase-5-advanced.md     # Phase 5 진행 상황
-├── guides/                      # 개발 가이드
-│   ├── setup-guide.md          # 개발 환경 설정
-│   ├── react-guide.md          # React 학습 가이드
-│   ├── nestjs-guide.md         # NestJS 학습 가이드
-│   ├── prisma-guide.md         # Prisma 학습 가이드
-│   └── deployment-guide.md     # 배포 가이드
-├── troubleshooting/             # 문제 해결
-│   ├── common-errors.md        # 자주 발생하는 에러
-│   ├── react-issues.md         # React 관련 문제
-│   ├── nestjs-issues.md        # NestJS 관련 문제
-│   └── database-issues.md      # 데이터베이스 관련 문제
-└── resources/                   # 학습 자료
-    ├── useful-links.md         # 유용한 링크 모음
-    ├── code-snippets.md        # 자주 사용하는 코드 스니펫
-    └── best-practices.md       # 모범 사례
-```
+## 📂 문서 구조
 
-## 🎯 현재 상태
+### 📋 [decisions/](./decisions/)
+프로젝트 개발 중 내린 주요 결정 사항들을 기록합니다.
 
-**현재 Phase**: Phase 1 - MVP 개발  
-**시작일**: 2025-01-23  
-**예상 완료일**: 2025-03-20 (8주)  
+- [phase1-decisions.md](./decisions/phase1-decisions.md) - Phase 1 핵심 기능 결정 사항
 
-### 📊 전체 진행률
-- [ ] Phase 1: MVP 개발 (0%)
-- [ ] Phase 2: 배포 & 안정화 (0%)
-- [ ] Phase 3: Next.js 전환 (0%)
-- [ ] Phase 4: 성능 최적화 (0%)
-- [ ] Phase 5: 고급 기능 (0%)
+### 🗄️ [database/](./database/)
+데이터베이스 설계 문서들입니다.
 
-### 🔥 현재 작업 중
-- 프로젝트 초기 설정
-- 개발 환경 구성
+- `schema.md` - 테이블 구조 및 필드 정의
+- `erd.md` - 엔티티 관계도 (ERD)
 
-### ✅ 완료된 작업
-- [x] 기술 스택 확정
-- [x] 프로젝트 구조 설계
-- [x] 문서 구조 생성
+### 🔌 [api/](./api/)
+백엔드 API 설계 문서들입니다.
 
-### 📋 다음 할 일
-1. 개발 환경 설정
-2. 프로젝트 초기화
-3. TypeScript 학습 시작
+- `endpoints.md` - REST API 엔드포인트 목록 및 명세
+
+### 🎨 [frontend/](./frontend/)
+프론트엔드 아키텍처 및 설계 문서들입니다.
+
+- `architecture.md` - 전체 프론트엔드 구조
+- `routing.md` - 페이지 라우팅 구조
+- `components.md` - 컴포넌트 설계
 
 ---
 
-## 📖 사용 방법
+## 📖 문서 읽는 순서
 
-### 1. 현재 상태 확인
-`docs/progress/current-status.md` 파일을 확인하여 현재 진행 상황을 파악하세요.
-
-### 2. 단계별 진행 상황 업데이트
-각 Phase별 파일에 완료된 작업을 체크하고, 현재 작업 중인 내용을 기록하세요.
-
-### 3. 문제 발생 시
-`docs/troubleshooting/` 폴더에서 관련 문제 해결 방법을 찾아보세요.
-
-### 4. 학습 자료 참고
-`docs/guides/` 폴더의 가이드를 참고하여 학습을 진행하세요.
+1. [../DESIGN.md](../DESIGN.md) - 프로젝트 전체 개요 및 방향성
+2. [decisions/phase1-decisions.md](./decisions/phase1-decisions.md) - 핵심 기능 결정 사항
+3. [database/schema.md](./database/schema.md) - 데이터베이스 구조
+4. [api/endpoints.md](./api/endpoints.md) - API 설계
+5. [frontend/architecture.md](./frontend/architecture.md) - 프론트엔드 구조
 
 ---
 
-## 🔄 업데이트 규칙
-
-### 매일 업데이트
-- `current-status.md`의 "현재 작업 중" 섹션
-- 완료된 작업을 체크리스트에 추가
-
-### 주간 업데이트
-- 각 Phase별 진행률 업데이트
-- 다음 주 계획 수립
-
-### 문제 발생 시
-- `troubleshooting/` 폴더에 해결 방법 기록
-- 다른 사람도 참고할 수 있도록 상세히 작성
-
----
-
-## 💡 팁
-
-1. **작은 단위로 업데이트**: 하루 단위로 진행 상황을 기록하세요.
-2. **구체적으로 기록**: "React 학습"보다는 "React 컴포넌트 props 학습 완료"처럼 구체적으로 작성하세요.
-3. **에러 기록**: 발생한 에러와 해결 방법을 꼼꼼히 기록하세요.
-4. **정기적 리뷰**: 주간 단위로 전체 진행 상황을 리뷰하세요.
-
----
-
-**마지막 업데이트**: 2025-01-23  
-**다음 리뷰 예정일**: 2025-01-30
+**최종 수정**: 2025-10-25
