@@ -1,0 +1,11 @@
+{
+  "name": "api",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "echo \"api dev - will be configured in Story 1.2\"",
+    "build": "echo \"api build - will be configured in Story 1.2\"",
+    "lint": "echo \"api lint - will be configured in Story 1.2\"",
+    "check-types": "echo \"api check-types - will be configured in Story 1.2\""
+  }
+}

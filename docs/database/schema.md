@@ -96,19 +96,18 @@
 
 ### 3. Category (카테고리)
 
-카테고리를 계층 구조로 관리합니다. Root/Trash 시스템 카테고리를 포함합니다.
+카테고리를 2단계 구조로 관리합니다. 고정 카테고리와 선택적 서브카테고리를 지원합니다.
 
 #### 필드
 
 | 필드명 | 타입 | 제약 | 설명 |
 |--------|------|------|------|
 | `id` | String (CUID) | PK | 고유 ID |
-| `name` | String | - | 카테고리 이름 (예: "기술", "일상") |
-| `slug` | String | - | URL용 slug (예: "tech", "life") |
+| `name` | String | - | 카테고리 이름 (예: "기술", "React") |
+| `slug` | String | - | URL용 slug (예: "tech", "react") |
 | `order` | Int | Default: 0 | 표시 순서 (정렬용) |
-| `parentId` | String? | FK | 부모 카테고리 ID (자기 참조) |
-| `depth` | Int | Default: 0 | 계층 깊이 (0, 1, 2) |
-| `isSystem` | Boolean | Default: false | 시스템 카테고리 여부 |
+| `parentId` | String? | FK | 부모 카테고리 ID (자기 참조, nullable) |
+| `depth` | Int | Default: 0 | 계층 깊이 (0: 최상위, 1: 서브) |
 | `createdAt` | DateTime | - | 생성일시 |
 | `updatedAt` | DateTime | - | 수정일시 |
 
@@ -120,44 +119,37 @@
 #### 계층 구조
 
 ```
-Root (depth: 0, isSystem: true)
-  ├─ 기술 (depth: 1)
-  │   ├─ React (depth: 2)
-  │   └─ NestJS (depth: 2)
-  ├─ 일상 (depth: 1)
-  └─ 프로젝트 (depth: 1)
+기술 (depth: 0, parentId: null)
+  ├─ React (depth: 1, parentId: '기술')
+  └─ NestJS (depth: 1, parentId: '기술')
 
-Trash (depth: 0, isSystem: true)
-  └─ 삭제된 카테고리들 (depth: 1)
+일상 (depth: 0, parentId: null)
+
+프로젝트 (depth: 0, parentId: null)
 ```
 
-#### 삭제/복구 메커니즘
+#### 삭제 메커니즘
 
-- **삭제**: Root → Trash로 이동 (`parentId` 변경)
-- **복구**: Trash → Root로 이동 (`parentId` 변경)
-- **외부 공개**: Root 하위만 공개, Trash는 관리자만 접근
-- `deletedAt` 필드 없이 `parentId`로 관리
+- **물리적 삭제**: 카테고리 삭제 시 DB에서 영구 삭제
+- **제약**: 하위 카테고리가 있거나 글이 있으면 삭제 불가 (Foreign Key Restrict)
+- **관리**: Phase 1에서는 Seed 스크립트로만 생성, UI는 Phase 2 이후
 
 #### 제약사항
 
-- **최대 3단계**: Root/Trash(0) → 카테고리(1) → 서브카테고리(2)
-- **depth 검증**: 카테고리 생성/이동 시 `parent.depth >= 2`이면 에러
-- **시스템 카테고리**: `isSystem: true`인 Root/Trash는 수정/삭제 불가
+- **최대 2단계**: 최상위 카테고리(0) → 서브카테고리(1)
+- **depth 검증**: 서브카테고리(depth=1)는 더 이상 자식을 가질 수 없음
+- **고정 구조**: Phase 1에서는 카테고리 관리 UI 미제공
 
 #### Seed 데이터
 
-초기 시스템 카테고리:
-```
-Root: { id: 'root', name: 'Root', slug: 'root', depth: 0, isSystem: true }
-Trash: { id: 'trash', name: 'Trash', slug: 'trash', depth: 0, isSystem: true }
+초기 고정 카테고리 (Phase 1):
+```typescript
+{ name: '기술', slug: 'tech', depth: 0, parentId: null, order: 1 }
+{ name: '일상', slug: 'life', depth: 0, parentId: null, order: 2 }
+{ name: '프로젝트', slug: 'project', depth: 0, parentId: null, order: 3 }
 ```
 
-초기 일반 카테고리:
-```
-기술: { name: '기술', slug: 'tech', parentId: 'root', depth: 1 }
-일상: { name: '일상', slug: 'life', parentId: 'root', depth: 1 }
-프로젝트: { name: '프로젝트', slug: 'project', parentId: 'root', depth: 1 }
-```
+**Phase 2 이후**: 서브카테고리 추가 및 관리 UI 제공 예정
 
 ---
 
@@ -287,20 +279,16 @@ findMany({
 ### Category 관련
 
 ```typescript
-// Root 하위 카테고리 (공개용)
+// 최상위 카테고리 목록 (공개용)
 findMany({
-  where: { parentId: 'root' },
+  where: { parentId: null },
   orderBy: { order: 'asc' }
 })
 
-// Trash 하위 카테고리 (관리자용)
+// 특정 카테고리의 서브카테고리
 findMany({
-  where: { parentId: 'trash' }
-})
-
-// 특정 depth 카테고리
-findMany({
-  where: { depth: 1 }
+  where: { parentId: 'xxx' },
+  orderBy: { order: 'asc' }
 })
 
 // 카테고리 + 하위 카테고리 + 글
@@ -327,8 +315,8 @@ findUnique({
 - `Category.parentId` → `Category.id` (onDelete: Restrict)
 
 ### Check 제약 (애플리케이션 레벨)
-- `Category.depth` ≤ 2 (최대 3단계)
-- `Category.isSystem = true`인 경우 수정/삭제 불가
+- `Category.depth` ≤ 1 (최대 2단계)
+- `Category.parentId`가 null이 아니면 부모의 `depth`는 반드시 0이어야 함
 - `User.role` ∈ {'admin', 'user'}
 
 ---
@@ -377,8 +365,8 @@ findUnique({
 
 ### 1. Soft Delete 미사용
 - `deletedAt` 필드 없음
-- Category는 Trash로 이동하여 관리
-- Post는 물리적 삭제 (복구 불가)
+- Post와 Category 모두 물리적 삭제 (복구 불가)
+- Phase 1에서는 카테고리 삭제 UI 미제공 (Seed로만 관리)
 
 ### 2. 한글 slug 지원
 - Post와 Category 모두 한글 slug 허용
@@ -393,9 +381,9 @@ findUnique({
 - `user`: 댓글 작성만 (Phase 2)
 
 ### 5. Category 계층 제한
-- 최대 3단계로 제한
+- 최대 2단계로 제한 (최상위 + 서브카테고리)
 - 애플리케이션 레벨에서 검증 필요
-- `depth` 필드로 쉽게 검증 가능
+- `depth` 필드로 쉽게 검증 가능 (0 또는 1만 허용)
 
 ---
 

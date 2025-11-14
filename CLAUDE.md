@@ -18,6 +18,30 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ---
 
+## AI Assistant Guidelines
+
+**Working Style**: This project follows a **Progressive Enhancement** approach where AI writes code incrementally in small, understandable steps.
+
+**Agent Usage Rules**:
+- When the user says **"아키형님한테"** (or mentions asking the architecture advisor), immediately use the `architecture-advisor` agent to get multi-perspective guidance (PM, Designer, Developer viewpoints)
+- The architecture-advisor provides strategic guidance for feature priorities, technical decisions, and phase planning
+
+**Development Approach**:
+1. Start with minimal working code (skeleton)
+2. Add features one at a time with explanations
+3. Explain "why" at each step for learning
+4. Ensure each step is testable
+5. Progress: Working → Improved → Optimized
+
+**Story Completion Checklist**:
+1. Read the story's Markdown file in `docs/backlog/stories/`
+2. Verify all Acceptance Criteria are met
+3. Update the MD file to check off all completed criteria `- [x]`
+4. Commit changes with a clear commit message
+5. Move to the next story
+
+---
+
 ## Architecture Highlights
 
 ### Database Schema (Prisma + PostgreSQL)
@@ -195,4 +219,6 @@ docs/
 4. Prisma schema implementation
 5. Development environment setup
 
-**Refer to DESIGN.md for phase breakdown and feature roadmap.**
+**Refer to docs/README.md for comprehensive design documentation and docs/decisions/phase1-decisions.md for Phase 1 scope.**
+
+**Note**: The initial DESIGN.md has been archived to docs/archive/DESIGN-v1-initial.md for reference.
