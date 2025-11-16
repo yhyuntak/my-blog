@@ -33,12 +33,14 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 4. Ensure each step is testable
 5. Progress: Working → Improved → Optimized
 
-**Story Completion Checklist**:
+**Story Completion Checklist** (ALWAYS FOLLOW):
 1. Read the story's Markdown file in `docs/backlog/stories/`
 2. Verify all Acceptance Criteria are met
-3. Update the MD file to check off all completed criteria `- [x]`
-4. Commit changes with a clear commit message
+3. **MUST**: Update the MD file to check off all completed criteria `- [x]` (NEVER skip this step)
+4. Commit changes with a clear commit message referencing the story
 5. Move to the next story
+
+**IMPORTANT**: The Acceptance Criteria checklist MUST be updated at the end of every story. This is mandatory, not optional.
 
 ---
 
