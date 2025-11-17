@@ -101,7 +101,7 @@ pnpm dev:web
 
 ### Ports
 
-- Frontend: http://localhost:50173
+- Frontend: http://localhost:60001
 - Backend: http://localhost:60000
 
 ## Documentation
