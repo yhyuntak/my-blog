@@ -12,3 +12,63 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+// ============================================
+// Enums
+// ============================================
+
+enum Role {
+  admin
+  user
+}
+
+// ============================================
+// Models
+// ============================================
+
+model User {
+  id              String    @id @default(cuid())
+  username        String?   @unique
+  password        String?
+  githubId        String?   @unique
+  githubUsername  String?
+  name            String
+  email           String?
+  avatar          String?
+  role            Role      @default(user)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  posts           Post[]
+}
+
+model Category {
+  id         String      @id @default(cuid())
+  name       String
+  slug       String
+  order      Int         @default(0)
+  parentId   String?
+  depth      Int         @default(0)
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+
+  parent     Category?   @relation("CategoryToCategory", fields: [parentId], references: [id], onDelete: Restrict)
+  children   Category[]  @relation("CategoryToCategory")
+  posts      Post[]
+}
+
+model Post {
+  id          String    @id @default(cuid())
+  title       String
+  slug        String
+  content     String    @db.Text
+  excerpt     String?
+  isPublic    Boolean   @default(false)
+  authorId    String
+  categoryId  String
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  author      User      @relation(fields: [authorId], references: [id], onDelete: Restrict)
+  category    Category  @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+}
