@@ -22,6 +22,7 @@ export const validationSchema = Joi.object({
     'string.min':
       'JWT_SECRET must be at least 32 characters long for security.',
   }),
+  JWT_EXPIRES_IN: Joi.string().default('1h'),
 
   // CORS - Frontend URL (production only)
   FRONTEND_URL: Joi.string().when('NODE_ENV', {
