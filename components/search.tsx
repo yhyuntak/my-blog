@@ -1,0 +1,128 @@
+"use client";
+
+import { useState, useEffect, useCallback } from "react";
+import { Search as SearchIcon, X } from "lucide-react";
+import Link from "next/link";
+import Fuse from "fuse.js";
+import type { PostPreview } from "@/lib/posts";
+
+interface SearchProps {
+  posts: PostPreview[];
+}
+
+export function Search({ posts }: SearchProps) {
+  const [isOpen, setIsOpen] = useState(false);
+  const [query, setQuery] = useState("");
+  const [results, setResults] = useState<PostPreview[]>([]);
+
+  const fuse = new Fuse(posts, {
+    keys: ["title", "excerpt", "tags.name", "category"],
+    threshold: 0.3,
+  });
+
+  useEffect(() => {
+    if (query.length > 0) {
+      const searchResults = fuse.search(query);
+      setResults(searchResults.map((result) => result.item));
+    } else {
+      setResults([]);
+    }
+  }, [query]);
+
+  const handleKeyDown = useCallback((e: KeyboardEvent) => {
+    if ((e.metaKey || e.ctrlKey) && e.key === "k") {
+      e.preventDefault();
+      setIsOpen(true);
+    }
+    if (e.key === "Escape") {
+      setIsOpen(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [handleKeyDown]);
+
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "unset";
+      setQuery("");
+    }
+  }, [isOpen]);
+
+  if (!isOpen) {
+    return (
+      <button
+        onClick={() => setIsOpen(true)}
+        className="flex items-center gap-2 px-3 py-1.5 text-sm rounded-lg border hover:bg-secondary transition-colors"
+      >
+        <SearchIcon className="h-4 w-4" />
+        <span className="hidden sm:inline">Search</span>
+        <kbd className="hidden sm:inline-flex items-center gap-1 px-1.5 py-0.5 text-xs rounded bg-muted">
+          <span>⌘</span>K
+        </kbd>
+      </button>
+    );
+  }
+
+  return (
+    <>
+      <div
+        className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50"
+        onClick={() => setIsOpen(false)}
+      />
+      <div className="fixed inset-0 z-50 flex items-start justify-center p-4 pt-[20vh]">
+        <div className="w-full max-w-2xl bg-background rounded-lg border shadow-lg">
+          <div className="flex items-center border-b px-4">
+            <SearchIcon className="h-5 w-5 text-muted-foreground" />
+            <input
+              type="text"
+              placeholder="Search posts..."
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              className="flex-1 px-4 py-3 bg-transparent outline-none"
+              autoFocus
+            />
+            <button
+              onClick={() => setIsOpen(false)}
+              className="p-2 hover:bg-secondary rounded-lg transition-colors"
+            >
+              <X className="h-5 w-5" />
+            </button>
+          </div>
+
+          <div className="max-h-[400px] overflow-y-auto p-2">
+            {query.length === 0 ? (
+              <div className="p-8 text-center text-sm text-muted-foreground">
+                Start typing to search posts...
+              </div>
+            ) : results.length > 0 ? (
+              <div className="space-y-1">
+                {results.map((post) => (
+                  <Link
+                    key={post.slug}
+                    href={`/posts/${post.slug}`}
+                    onClick={() => setIsOpen(false)}
+                    className="block p-3 rounded-lg hover:bg-secondary transition-colors"
+                  >
+                    <div className="font-medium">{post.title}</div>
+                    <div className="text-sm text-muted-foreground line-clamp-1">
+                      {post.excerpt}
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            ) : (
+              <div className="p-8 text-center text-sm text-muted-foreground">
+                No posts found for &quot;{query}&quot;
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </>
+  );
+}
