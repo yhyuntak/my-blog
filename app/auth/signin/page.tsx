@@ -6,9 +6,9 @@ export default function SignInPage() {
     <div className="flex min-h-[calc(100vh-14rem)] items-center justify-center px-4">
       <div className="w-full max-w-md space-y-8">
         <div className="text-center">
-          <h1 className="text-3xl font-bold tracking-tight">Welcome back</h1>
+          <h1 className="text-3xl font-bold tracking-tight">Welcome</h1>
           <p className="mt-2 text-muted-foreground">
-            Sign in to your account to continue
+            Sign in or create a new account to continue
           </p>
         </div>
 
@@ -61,9 +61,14 @@ export default function SignInPage() {
           </form>
         </div>
 
-        <p className="text-center text-sm text-muted-foreground">
-          By signing in, you agree to our Terms of Service and Privacy Policy.
-        </p>
+        <div className="space-y-2">
+          <p className="text-center text-xs text-muted-foreground">
+            Don't have an account? No problem! Your account will be automatically created when you sign in for the first time.
+          </p>
+          <p className="text-center text-xs text-muted-foreground">
+            By continuing, you agree to our Terms of Service and Privacy Policy.
+          </p>
+        </div>
       </div>
     </div>
   );
