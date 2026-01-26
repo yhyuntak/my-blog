@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { User, LogOut, Settings, Shield } from "lucide-react";
+import { User, LogOut, Settings, Shield, Plus } from "lucide-react";
 import Link from "next/link";
 import { Session } from "next-auth";
 
@@ -64,14 +64,24 @@ export function UserNav({ user }: UserNavProps) {
 
           <div className="p-1">
             {user.role === "admin" && (
-              <Link
-                href="/admin"
-                onClick={() => setIsOpen(false)}
-                className="flex items-center gap-2 px-3 py-2 text-sm rounded-md hover:bg-secondary transition-colors"
-              >
-                <Settings className="h-4 w-4" />
-                Admin Dashboard
-              </Link>
+              <>
+                <Link
+                  href="/admin/posts/new"
+                  onClick={() => setIsOpen(false)}
+                  className="flex items-center gap-2 px-3 py-2 text-sm rounded-md hover:bg-secondary transition-colors"
+                >
+                  <Plus className="h-4 w-4" />
+                  New Post
+                </Link>
+                <Link
+                  href="/admin"
+                  onClick={() => setIsOpen(false)}
+                  className="flex items-center gap-2 px-3 py-2 text-sm rounded-md hover:bg-secondary transition-colors"
+                >
+                  <Settings className="h-4 w-4" />
+                  Dashboard
+                </Link>
+              </>
             )}
 
             <form action="/api/auth/signout" method="POST">

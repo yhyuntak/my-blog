@@ -21,6 +21,9 @@ export default async function EditPostPage({ params }: EditPostPageProps) {
   const post = await prisma.post.findUnique({
     where: { slug },
     include: {
+      category: {
+        select: { id: true, name: true, slug: true }
+      },
       tags: {
         include: {
           tag: {
@@ -52,6 +55,7 @@ export default async function EditPostPage({ params }: EditPostPageProps) {
             content: post.content,
             excerpt: post.excerpt || "",
             coverImage: post.coverImage || "",
+            categoryId: post.categoryId,
             tags: post.tags.map(pt => pt.tag.name).join(","),
             published: post.published,
           }}

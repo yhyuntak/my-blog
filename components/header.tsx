@@ -2,12 +2,15 @@ import Link from "next/link";
 import { ThemeToggle } from "./theme-toggle";
 import { Search } from "./search";
 import { UserNav } from "./user-nav";
+import { CategoriesDropdown } from "./categories-dropdown";
 import { getAllPosts } from "@/lib/posts";
+import { getAllCategories } from "@/lib/categories";
 import { auth } from "@/auth";
 import { LogIn } from "lucide-react";
 
 export async function Header() {
   const posts = await getAllPosts();
+  const categories = await getAllCategories();
   const session = await auth();
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -18,12 +21,7 @@ export async function Header() {
           </Link>
 
           <nav className="flex items-center space-x-4 text-sm font-medium">
-            <Link
-              href="/posts"
-              className="transition-colors hover:text-foreground/80 text-foreground/60"
-            >
-              Posts
-            </Link>
+            <CategoriesDropdown categories={categories} />
             <Link
               href="/tags"
               className="transition-colors hover:text-foreground/80 text-foreground/60"

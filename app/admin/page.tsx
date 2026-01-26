@@ -2,7 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 import { formatDistanceToNow } from "date-fns";
-import { MessageSquare, Users, FileText, Plus, Settings } from "lucide-react";
+import { MessageSquare, Users, FileText, Plus, Settings, FolderTree } from "lucide-react";
 import { getAllPosts } from "@/lib/posts";
 import Link from "next/link";
 
@@ -90,7 +90,7 @@ export default async function AdminPage() {
         </div>
 
         {/* Quick Actions */}
-        <div className="grid gap-4 md:grid-cols-2">
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           <Link
             href="/admin/posts"
             className="p-6 rounded-lg border bg-card hover:bg-secondary/50 transition-colors"
@@ -119,6 +119,22 @@ export default async function AdminPage() {
                 <h3 className="font-semibold mb-1">New Post</h3>
                 <p className="text-sm text-muted-foreground">
                   Create a new blog post
+                </p>
+              </div>
+            </div>
+          </Link>
+          <Link
+            href="/admin/categories"
+            className="p-6 rounded-lg border bg-card hover:bg-secondary/50 transition-colors"
+          >
+            <div className="flex items-center gap-4">
+              <div className="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center">
+                <FolderTree className="h-6 w-6 text-primary" />
+              </div>
+              <div>
+                <h3 className="font-semibold mb-1">Manage Categories</h3>
+                <p className="text-sm text-muted-foreground">
+                  Create and organize blog categories
                 </p>
               </div>
             </div>

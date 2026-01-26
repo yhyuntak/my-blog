@@ -55,7 +55,7 @@ export async function PUT(request: NextRequest, context: RouteContext) {
 
   try {
     const body = await request.json();
-    const { title, content, excerpt, coverImage, tags, published } = body;
+    const { title, content, excerpt, coverImage, categoryId, tags, published } = body;
 
     // Get post to access its ID
     const existingPost = await prisma.post.findUnique({
@@ -101,6 +101,7 @@ export async function PUT(request: NextRequest, context: RouteContext) {
         content,
         excerpt: excerpt || "",
         coverImage: coverImage || null,
+        categoryId: categoryId || undefined,
         published: published ?? true,
         tags: {
           create: tagData,

@@ -13,6 +13,7 @@ interface PostFormProps {
     content: string;
     excerpt: string;
     coverImage: string;
+    categoryId?: string;
     tags: Array<{name: string; slug: string}> | string;
     published: boolean;
   };
@@ -23,6 +24,7 @@ export function PostForm({ initialData, isEdit = false }: PostFormProps) {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [availableTags, setAvailableTags] = useState<string[]>([]);
+  const [categories, setCategories] = useState<Array<{id: string; name: string}>>([]);
   const [isGenerating, setIsGenerating] = useState(false);
   const [formData, setFormData] = useState({
     title: initialData?.title || "",
@@ -30,6 +32,7 @@ export function PostForm({ initialData, isEdit = false }: PostFormProps) {
     content: initialData?.content || "",
     excerpt: initialData?.excerpt || "",
     coverImage: initialData?.coverImage || "",
+    categoryId: initialData?.categoryId || "",
     tags: initialData?.tags
       ? (typeof initialData.tags === 'string'
           ? initialData.tags.split(",").map(t => t.trim())
@@ -39,6 +42,7 @@ export function PostForm({ initialData, isEdit = false }: PostFormProps) {
   });
 
   useEffect(() => {
+    // Fetch available tags
     fetch("/api/posts")
       .then(res => res.json())
       .then(data => {
@@ -49,6 +53,17 @@ export function PostForm({ initialData, isEdit = false }: PostFormProps) {
           });
         });
         setAvailableTags(Array.from(tagSet));
+      });
+
+    // Fetch categories
+    fetch("/api/categories")
+      .then(res => res.json())
+      .then(data => {
+        setCategories(data);
+        // Set first category as default if no category selected
+        if (!formData.categoryId && data.length > 0) {
+          setFormData(prev => ({ ...prev, categoryId: data[0].id }));
+        }
       });
   }, []);
 
@@ -156,6 +171,32 @@ export function PostForm({ initialData, isEdit = false }: PostFormProps) {
             className="w-full px-4 py-2 rounded-lg border bg-background focus:outline-none focus:ring-2 focus:ring-primary"
             placeholder="https://example.com/image.jpg"
           />
+        </div>
+
+        {/* Category */}
+        <div>
+          <label
+            htmlFor="category"
+            className="block text-sm font-medium mb-2"
+          >
+            Category *
+          </label>
+          <select
+            id="category"
+            required
+            value={formData.categoryId}
+            onChange={(e) =>
+              setFormData((prev) => ({ ...prev, categoryId: e.target.value }))
+            }
+            className="w-full px-4 py-2 rounded-lg border bg-background focus:outline-none focus:ring-2 focus:ring-primary"
+          >
+            <option value="">Select a category</option>
+            {categories.map((cat) => (
+              <option key={cat.id} value={cat.id}>
+                {cat.name}
+              </option>
+            ))}
+          </select>
         </div>
 
         {/* Content */}

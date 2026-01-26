@@ -41,7 +41,14 @@ export async function POST(request: NextRequest) {
 
   try {
     const body = await request.json();
-    const { title, slug, content, excerpt, coverImage, tags, published } = body;
+    const { title, slug, content, excerpt, coverImage, categoryId, tags, published } = body;
+
+    if (!categoryId) {
+      return NextResponse.json(
+        { error: "Category is required" },
+        { status: 400 }
+      );
+    }
 
     // Check if slug already exists
     const existing = await prisma.post.findUnique({
@@ -63,6 +70,7 @@ export async function POST(request: NextRequest) {
         content,
         excerpt: excerpt || "",
         coverImage: coverImage || null,
+        categoryId,
         published: published ?? true,
         authorId: session.user.id,
         tags: {

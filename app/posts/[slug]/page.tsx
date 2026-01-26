@@ -111,10 +111,13 @@ export default async function PostPage({ params }: PostPageProps) {
             <span>{post.readingTime}</span>
           </div>
           {post.category && (
-            <div className="flex items-center gap-1">
+            <Link
+              href={`/category/${post.category.slug}`}
+              className="flex items-center gap-1 hover:text-primary transition-colors"
+            >
               <Tag className="h-4 w-4" />
-              <span>{post.category}</span>
-            </div>
+              <span>{post.category.name}</span>
+            </Link>
           )}
         </div>
 

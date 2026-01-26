@@ -9,7 +9,7 @@ export interface PostMatter {
   date: string;
   excerpt: string;
   tags?: Array<{name: string; slug: string}>;
-  category?: string;
+  category: {name: string; slug: string};
   author?: string;
   coverImage?: string;
 }
@@ -32,6 +32,12 @@ export async function getPostBySlug(slug: string): Promise<Post | null> {
       author: {
         select: {
           name: true,
+        },
+      },
+      category: {
+        select: {
+          name: true,
+          slug: true,
         },
       },
       tags: {
@@ -57,6 +63,7 @@ export async function getPostBySlug(slug: string): Promise<Post | null> {
     date: post.createdAt.toISOString(),
     excerpt: post.excerpt || "",
     tags,
+    category: { name: post.category.name, slug: post.category.slug },
     author: post.author.name || undefined,
     coverImage: post.coverImage || undefined,
     content: post.content,
@@ -87,52 +94,10 @@ export async function getAllPosts(): Promise<PostPreview[]> {
           name: true,
         },
       },
-      tags: {
-        include: {
-          tag: {
-            select: { name: true, slug: true }
-          }
-        }
-      }
-    },
-    orderBy: {
-      createdAt: "desc",
-    },
-  });
-
-  return posts.map((post) => {
-    const stats = readingTime(post.content);
-    const tags = post.tags.map(pt => ({name: pt.tag.name, slug: pt.tag.slug}));
-
-    return {
-      slug: post.slug,
-      title: post.title,
-      date: post.createdAt.toISOString(),
-      excerpt: post.excerpt || "",
-      tags,
-      author: post.author.name || undefined,
-      coverImage: post.coverImage || undefined,
-      readingTime: stats.text,
-    };
-  });
-}
-
-export async function getPostsByTag(tag: string): Promise<PostPreview[]> {
-  const posts = await prisma.post.findMany({
-    where: {
-      published: true,
-      tags: {
-        some: {
-          tag: {
-            slug: tag
-          }
-        }
-      }
-    },
-    include: {
-      author: {
+      category: {
         select: {
           name: true,
+          slug: true,
         },
       },
       tags: {
@@ -158,6 +123,113 @@ export async function getPostsByTag(tag: string): Promise<PostPreview[]> {
       date: post.createdAt.toISOString(),
       excerpt: post.excerpt || "",
       tags,
+      category: { name: post.category.name, slug: post.category.slug },
+      author: post.author.name || undefined,
+      coverImage: post.coverImage || undefined,
+      readingTime: stats.text,
+    };
+  });
+}
+
+export async function getPostsByTag(tag: string): Promise<PostPreview[]> {
+  const posts = await prisma.post.findMany({
+    where: {
+      published: true,
+      tags: {
+        some: {
+          tag: {
+            slug: tag
+          }
+        }
+      }
+    },
+    include: {
+      author: {
+        select: {
+          name: true,
+        },
+      },
+      category: {
+        select: {
+          name: true,
+          slug: true,
+        },
+      },
+      tags: {
+        include: {
+          tag: {
+            select: { name: true, slug: true }
+          }
+        }
+      }
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
+  });
+
+  return posts.map((post) => {
+    const stats = readingTime(post.content);
+    const tags = post.tags.map(pt => ({name: pt.tag.name, slug: pt.tag.slug}));
+
+    return {
+      slug: post.slug,
+      title: post.title,
+      date: post.createdAt.toISOString(),
+      excerpt: post.excerpt || "",
+      tags,
+      category: { name: post.category.name, slug: post.category.slug },
+      author: post.author.name || undefined,
+      coverImage: post.coverImage || undefined,
+      readingTime: stats.text,
+    };
+  });
+}
+
+export async function getPostsByCategory(categorySlug: string): Promise<PostPreview[]> {
+  const posts = await prisma.post.findMany({
+    where: {
+      published: true,
+      category: {
+        slug: categorySlug
+      }
+    },
+    include: {
+      author: {
+        select: {
+          name: true,
+        },
+      },
+      category: {
+        select: {
+          name: true,
+          slug: true,
+        },
+      },
+      tags: {
+        include: {
+          tag: {
+            select: { name: true, slug: true }
+          }
+        }
+      }
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
+  });
+
+  return posts.map((post) => {
+    const stats = readingTime(post.content);
+    const tags = post.tags.map(pt => ({name: pt.tag.name, slug: pt.tag.slug}));
+
+    return {
+      slug: post.slug,
+      title: post.title,
+      date: post.createdAt.toISOString(),
+      excerpt: post.excerpt || "",
+      tags,
+      category: { name: post.category.name, slug: post.category.slug },
       author: post.author.name || undefined,
       coverImage: post.coverImage || undefined,
       readingTime: stats.text,
