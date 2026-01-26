@@ -5,6 +5,7 @@ export interface Category {
   name: string;
   slug: string;
   description: string | null;
+  parentId: string | null;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -13,6 +14,15 @@ export interface CategoryWithCount extends Category {
   postCount: number;
 }
 
+export interface CategoryWithChildren extends CategoryWithCount {
+  children: CategoryWithCount[];
+}
+
+export interface CategoryWithParent extends CategoryWithCount {
+  parent: { id: string; name: string; slug: string } | null;
+}
+
+// Get all categories as a flat list with counts
 export async function getAllCategories(): Promise<CategoryWithCount[]> {
   const categories = await prisma.category.findMany({
     include: {
@@ -30,18 +40,109 @@ export async function getAllCategories(): Promise<CategoryWithCount[]> {
     name: cat.name,
     slug: cat.slug,
     description: cat.description,
+    parentId: cat.parentId,
     createdAt: cat.createdAt,
     updatedAt: cat.updatedAt,
     postCount: cat._count.posts
   }));
 }
 
-export async function getCategoryBySlug(slug: string): Promise<Category | null> {
-  const category = await prisma.category.findUnique({
-    where: { slug }
+// Get categories as a hierarchical tree (only root categories with their children)
+export async function getCategoriesTree(): Promise<CategoryWithChildren[]> {
+  const categories = await prisma.category.findMany({
+    where: { parentId: null },
+    include: {
+      _count: {
+        select: { posts: true }
+      },
+      children: {
+        include: {
+          _count: {
+            select: { posts: true }
+          }
+        },
+        orderBy: { name: "asc" }
+      }
+    },
+    orderBy: {
+      name: "asc"
+    }
   });
 
-  return category;
+  return categories.map(cat => ({
+    id: cat.id,
+    name: cat.name,
+    slug: cat.slug,
+    description: cat.description,
+    parentId: cat.parentId,
+    createdAt: cat.createdAt,
+    updatedAt: cat.updatedAt,
+    postCount: cat._count.posts,
+    children: cat.children.map(child => ({
+      id: child.id,
+      name: child.name,
+      slug: child.slug,
+      description: child.description,
+      parentId: child.parentId,
+      createdAt: child.createdAt,
+      updatedAt: child.updatedAt,
+      postCount: child._count.posts
+    }))
+  }));
+}
+
+// Get root categories only (no parent)
+export async function getRootCategories(): Promise<CategoryWithCount[]> {
+  const categories = await prisma.category.findMany({
+    where: { parentId: null },
+    include: {
+      _count: {
+        select: { posts: true }
+      }
+    },
+    orderBy: {
+      name: "asc"
+    }
+  });
+
+  return categories.map(cat => ({
+    id: cat.id,
+    name: cat.name,
+    slug: cat.slug,
+    description: cat.description,
+    parentId: cat.parentId,
+    createdAt: cat.createdAt,
+    updatedAt: cat.updatedAt,
+    postCount: cat._count.posts
+  }));
+}
+
+export async function getCategoryBySlug(slug: string): Promise<CategoryWithParent | null> {
+  const category = await prisma.category.findUnique({
+    where: { slug },
+    include: {
+      _count: {
+        select: { posts: true }
+      },
+      parent: {
+        select: { id: true, name: true, slug: true }
+      }
+    }
+  });
+
+  if (!category) return null;
+
+  return {
+    id: category.id,
+    name: category.name,
+    slug: category.slug,
+    description: category.description,
+    parentId: category.parentId,
+    createdAt: category.createdAt,
+    updatedAt: category.updatedAt,
+    postCount: category._count.posts,
+    parent: category.parent
+  };
 }
 
 export async function getCategoryById(id: string): Promise<Category | null> {
@@ -52,16 +153,44 @@ export async function getCategoryById(id: string): Promise<Category | null> {
   return category;
 }
 
+// Get children of a category
+export async function getChildCategories(parentId: string): Promise<CategoryWithCount[]> {
+  const categories = await prisma.category.findMany({
+    where: { parentId },
+    include: {
+      _count: {
+        select: { posts: true }
+      }
+    },
+    orderBy: {
+      name: "asc"
+    }
+  });
+
+  return categories.map(cat => ({
+    id: cat.id,
+    name: cat.name,
+    slug: cat.slug,
+    description: cat.description,
+    parentId: cat.parentId,
+    createdAt: cat.createdAt,
+    updatedAt: cat.updatedAt,
+    postCount: cat._count.posts
+  }));
+}
+
 export async function createCategory(data: {
   name: string;
   slug: string;
   description?: string;
+  parentId?: string | null;
 }): Promise<Category> {
   const category = await prisma.category.create({
     data: {
       name: data.name,
       slug: data.slug,
-      description: data.description || null
+      description: data.description || null,
+      parentId: data.parentId || null
     }
   });
 
@@ -74,6 +203,7 @@ export async function updateCategory(
     name?: string;
     slug?: string;
     description?: string;
+    parentId?: string | null;
   }
 ): Promise<Category> {
   const category = await prisma.category.update({
@@ -81,7 +211,8 @@ export async function updateCategory(
     data: {
       name: data.name,
       slug: data.slug,
-      description: data.description
+      description: data.description,
+      parentId: data.parentId
     }
   });
 

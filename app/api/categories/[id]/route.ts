@@ -15,12 +15,13 @@ export async function PUT(
 
     const { id } = await params;
     const body = await request.json();
-    const { name, slug, description } = body;
+    const { name, slug, description, parentId } = body;
 
     const category = await updateCategory(id, {
       name,
       slug,
       description,
+      parentId,
     });
 
     return NextResponse.json(category);

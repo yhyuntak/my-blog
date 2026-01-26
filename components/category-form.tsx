@@ -6,12 +6,20 @@ import { slugify } from "@/lib/categories";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 
+interface Category {
+  id: string;
+  name: string;
+  slug: string;
+  parentId: string | null;
+}
+
 interface CategoryFormProps {
   category?: {
     id: string;
     name: string;
     slug: string;
     description: string | null;
+    parentId: string | null;
   };
 }
 
@@ -20,9 +28,25 @@ export default function CategoryForm({ category }: CategoryFormProps) {
   const [name, setName] = useState(category?.name || "");
   const [slug, setSlug] = useState(category?.slug || "");
   const [description, setDescription] = useState(category?.description || "");
+  const [parentId, setParentId] = useState<string>(category?.parentId || "");
   const [autoSlug, setAutoSlug] = useState(!category);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
+  const [categories, setCategories] = useState<Category[]>([]);
+
+  useEffect(() => {
+    // Fetch root categories for parent selection
+    fetch("/api/categories?rootOnly=true")
+      .then((res) => res.json())
+      .then((data) => {
+        // Filter out current category if editing (can't be parent of itself)
+        const filtered = category
+          ? data.filter((c: Category) => c.id !== category.id)
+          : data;
+        setCategories(filtered);
+      })
+      .catch(console.error);
+  }, [category]);
 
   useEffect(() => {
     if (autoSlug && name) {
@@ -50,6 +74,7 @@ export default function CategoryForm({ category }: CategoryFormProps) {
           name,
           slug,
           description: description || null,
+          parentId: parentId || null,
         }),
       });
 
@@ -82,6 +107,28 @@ export default function CategoryForm({ category }: CategoryFormProps) {
             {error}
           </div>
         )}
+
+        <div>
+          <label htmlFor="parentId" className="block text-sm font-medium mb-2">
+            Parent Category
+          </label>
+          <select
+            id="parentId"
+            value={parentId}
+            onChange={(e) => setParentId(e.target.value)}
+            className="w-full px-4 py-2 rounded-lg border bg-background focus:outline-none focus:ring-2 focus:ring-primary"
+          >
+            <option value="">None (Root Category)</option>
+            {categories.map((cat) => (
+              <option key={cat.id} value={cat.id}>
+                {cat.name}
+              </option>
+            ))}
+          </select>
+          <p className="text-sm text-muted-foreground mt-1">
+            Leave empty to create a root category
+          </p>
+        </div>
 
         <div>
           <label htmlFor="name" className="block text-sm font-medium mb-2">

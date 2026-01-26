@@ -4,13 +4,13 @@ import { Search } from "./search";
 import { UserNav } from "./user-nav";
 import { CategoriesDropdown } from "./categories-dropdown";
 import { getAllPosts } from "@/lib/posts";
-import { getAllCategories } from "@/lib/categories";
+import { getCategoriesTree } from "@/lib/categories";
 import { auth } from "@/auth";
 import { LogIn } from "lucide-react";
 
 export async function Header() {
   const posts = await getAllPosts();
-  const categories = await getAllCategories();
+  const categories = await getCategoriesTree();
   const session = await auth();
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">

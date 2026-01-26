@@ -1,22 +1,27 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { ChevronDown, FolderTree } from "lucide-react";
+import { ChevronDown, ChevronRight, FolderTree, Folder } from "lucide-react";
 import Link from "next/link";
 
-interface Category {
+interface CategoryWithCount {
   id: string;
   name: string;
   slug: string;
   postCount: number;
 }
 
+interface CategoryWithChildren extends CategoryWithCount {
+  children: CategoryWithCount[];
+}
+
 interface CategoriesDropdownProps {
-  categories: Category[];
+  categories: CategoryWithChildren[];
 }
 
 export function CategoriesDropdown({ categories }: CategoriesDropdownProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set());
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -33,6 +38,19 @@ export function CategoriesDropdown({ categories }: CategoriesDropdownProps) {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  const toggleExpand = (categoryId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setExpandedCategories((prev) => {
+      const newSet = new Set(prev);
+      if (newSet.has(categoryId)) {
+        newSet.delete(categoryId);
+      } else {
+        newSet.add(categoryId);
+      }
+      return newSet;
+    });
+  };
+
   return (
     <div className="relative" ref={dropdownRef}>
       <button
@@ -44,23 +62,68 @@ export function CategoriesDropdown({ categories }: CategoriesDropdownProps) {
       </button>
 
       {isOpen && (
-        <div className="absolute left-0 mt-2 w-56 rounded-lg border bg-background shadow-lg py-1">
-          {categories.map((category) => (
-            <Link
-              key={category.id}
-              href={`/category/${category.slug}`}
-              onClick={() => setIsOpen(false)}
-              className="flex items-center justify-between px-4 py-2 text-sm hover:bg-secondary transition-colors"
-            >
-              <div className="flex items-center gap-2">
-                <FolderTree className="h-4 w-4" />
-                <span>{category.name}</span>
+        <div className="absolute left-0 mt-2 w-64 rounded-lg border bg-background shadow-lg py-1 max-h-96 overflow-y-auto">
+          {categories.length === 0 ? (
+            <div className="px-4 py-2 text-sm text-muted-foreground">
+              No categories yet
+            </div>
+          ) : (
+            categories.map((category) => (
+              <div key={category.id}>
+                <div className="flex items-center">
+                  {category.children.length > 0 ? (
+                    <button
+                      onClick={(e) => toggleExpand(category.id, e)}
+                      className="p-2 hover:bg-secondary transition-colors"
+                    >
+                      {expandedCategories.has(category.id) ? (
+                        <ChevronDown className="h-3 w-3" />
+                      ) : (
+                        <ChevronRight className="h-3 w-3" />
+                      )}
+                    </button>
+                  ) : (
+                    <div className="w-7" />
+                  )}
+                  <Link
+                    href={`/category/${category.slug}`}
+                    onClick={() => setIsOpen(false)}
+                    className="flex-1 flex items-center justify-between pr-4 py-2 text-sm hover:bg-secondary transition-colors"
+                  >
+                    <div className="flex items-center gap-2">
+                      <FolderTree className="h-4 w-4" />
+                      <span className="font-medium">{category.name}</span>
+                    </div>
+                    <span className="text-xs text-muted-foreground">
+                      {category.postCount}
+                    </span>
+                  </Link>
+                </div>
+
+                {/* Children */}
+                {expandedCategories.has(category.id) && category.children.length > 0 && (
+                  <div className="ml-4 border-l">
+                    {category.children.map((child) => (
+                      <Link
+                        key={child.id}
+                        href={`/category/${child.slug}`}
+                        onClick={() => setIsOpen(false)}
+                        className="flex items-center justify-between pl-6 pr-4 py-2 text-sm hover:bg-secondary transition-colors"
+                      >
+                        <div className="flex items-center gap-2">
+                          <Folder className="h-3 w-3" />
+                          <span>{child.name}</span>
+                        </div>
+                        <span className="text-xs text-muted-foreground">
+                          {child.postCount}
+                        </span>
+                      </Link>
+                    ))}
+                  </div>
+                )}
               </div>
-              <span className="text-xs text-muted-foreground">
-                {category.postCount}
-              </span>
-            </Link>
-          ))}
+            ))
+          )}
         </div>
       )}
     </div>

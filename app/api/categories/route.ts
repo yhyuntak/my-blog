@@ -1,10 +1,15 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
-import { createCategory, getAllCategories } from "@/lib/categories";
+import { createCategory, getAllCategories, getRootCategories } from "@/lib/categories";
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
-    const categories = await getAllCategories();
+    const { searchParams } = new URL(request.url);
+    const rootOnly = searchParams.get("rootOnly") === "true";
+
+    const categories = rootOnly
+      ? await getRootCategories()
+      : await getAllCategories();
     return NextResponse.json(categories);
   } catch (error) {
     console.error("Error fetching categories:", error);
@@ -24,7 +29,7 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json();
-    const { name, slug, description } = body;
+    const { name, slug, description, parentId } = body;
 
     if (!name || !slug) {
       return NextResponse.json(
@@ -37,6 +42,7 @@ export async function POST(request: Request) {
       name,
       slug,
       description,
+      parentId,
     });
 
     return NextResponse.json(category);
