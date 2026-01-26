@@ -1,6 +1,6 @@
 import { getPostBySlug, getPostContent, getAllPosts } from "@/lib/posts";
 import { formatDate } from "@/lib/utils";
-import { Calendar, Clock, Tag, ArrowLeft } from "lucide-react";
+import { Calendar, Clock, FolderTree, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Comments } from "@/components/comments";
@@ -35,7 +35,7 @@ export async function generateMetadata({ params }: PostPageProps) {
     return {
       title: post.title,
       description: post.excerpt,
-      keywords: post.tags?.map(t => t.name),
+      keywords: post.category ? [post.category.name] : undefined,
       authors: post.author ? [{ name: post.author }] : undefined,
       openGraph: {
         type: "article",
@@ -44,7 +44,7 @@ export async function generateMetadata({ params }: PostPageProps) {
         url: `/posts/${slug}`,
         publishedTime: post.date,
         authors: post.author ? [post.author] : undefined,
-        tags: post.tags?.map(t => t.name),
+        tags: post.category ? [post.category.name] : undefined,
       },
       twitter: {
         card: "summary_large_image",
@@ -115,25 +115,11 @@ export default async function PostPage({ params }: PostPageProps) {
               href={`/category/${post.category.slug}`}
               className="flex items-center gap-1 hover:text-primary transition-colors"
             >
-              <Tag className="h-4 w-4" />
+              <FolderTree className="h-4 w-4" />
               <span>{post.category.name}</span>
             </Link>
           )}
         </div>
-
-        {post.tags && post.tags.length > 0 && (
-          <div className="flex flex-wrap gap-2">
-            {post.tags.map((tag) => (
-              <Link
-                key={tag.slug}
-                href={`/tags/${tag.slug}`}
-                className="px-3 py-1 text-sm rounded-md bg-secondary text-secondary-foreground hover:bg-secondary/80 transition-colors"
-              >
-                {tag.name}
-              </Link>
-            ))}
-          </div>
-        )}
       </header>
 
       <div

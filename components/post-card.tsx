@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { formatDate } from "@/lib/utils";
-import { Calendar, Clock, Tag, FolderTree } from "lucide-react";
+import { Calendar, Clock, FolderTree } from "lucide-react";
 import type { PostPreview } from "@/lib/posts";
 
 interface PostCardProps {
@@ -42,19 +42,6 @@ export function PostCard({ post }: PostCardProps) {
           )}
         </div>
 
-        {post.tags && post.tags.length > 0 && (
-          <div className="flex flex-wrap gap-2">
-            {post.tags.map((tag) => (
-              <Link
-                key={tag.slug}
-                href={`/tags/${tag.slug}`}
-                className="px-2 py-1 text-xs rounded-md bg-secondary text-secondary-foreground hover:bg-secondary/80 transition-colors"
-              >
-                {tag.name}
-              </Link>
-            ))}
-          </div>
-        )}
       </div>
     </article>
   );

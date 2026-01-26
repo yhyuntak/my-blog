@@ -23,12 +23,6 @@ export async function Header() {
           <nav className="flex items-center space-x-4 text-sm font-medium">
             <CategoriesDropdown categories={categories} />
             <Link
-              href="/tags"
-              className="transition-colors hover:text-foreground/80 text-foreground/60"
-            >
-              Tags
-            </Link>
-            <Link
               href="/about"
               className="transition-colors hover:text-foreground/80 text-foreground/60"
             >
