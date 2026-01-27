@@ -1,8 +1,9 @@
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 import { getCategoriesTree } from "@/lib/categories";
-import { Pencil, Trash2, Plus, FolderTree, Folder } from "lucide-react";
+import { Pencil, Plus, FolderTree, Folder } from "lucide-react";
 import Link from "next/link";
+import { CategoryDeleteButton } from "@/components/category-delete-button";
 
 export default async function AdminCategoriesPage() {
   const session = await auth();
@@ -72,23 +73,12 @@ export default async function AdminCategoriesPage() {
                       >
                         <Pencil className="h-4 w-4" />
                       </Link>
-                      <form action={`/api/categories/${category.id}`} method="POST">
-                        <input type="hidden" name="_method" value="DELETE" />
-                        <button
-                          type="submit"
-                          className="p-2 hover:bg-destructive/10 text-destructive rounded-lg transition-colors disabled:opacity-50"
-                          disabled={category.postCount > 0 || category.children.length > 0}
-                          title={
-                            category.postCount > 0
-                              ? "Cannot delete category with posts"
-                              : category.children.length > 0
-                              ? "Cannot delete category with subcategories"
-                              : "Delete category"
-                          }
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </button>
-                      </form>
+                      <CategoryDeleteButton
+                        categoryId={category.id}
+                        categoryName={category.name}
+                        postCount={category.postCount}
+                        childrenCount={category.children.length}
+                      />
                     </div>
                   </div>
 
@@ -122,21 +112,12 @@ export default async function AdminCategoriesPage() {
                         >
                           <Pencil className="h-4 w-4" />
                         </Link>
-                        <form action={`/api/categories/${child.id}`} method="POST">
-                          <input type="hidden" name="_method" value="DELETE" />
-                          <button
-                            type="submit"
-                            className="p-2 hover:bg-destructive/10 text-destructive rounded-lg transition-colors disabled:opacity-50"
-                            disabled={child.postCount > 0}
-                            title={
-                              child.postCount > 0
-                                ? "Cannot delete category with posts"
-                                : "Delete category"
-                            }
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </button>
-                        </form>
+                        <CategoryDeleteButton
+                          categoryId={child.id}
+                          categoryName={child.name}
+                          postCount={child.postCount}
+                          childrenCount={0}
+                        />
                       </div>
                     </div>
                   ))}
