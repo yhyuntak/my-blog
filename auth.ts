@@ -9,11 +9,13 @@ declare module "next-auth" {
     user: {
       id: string;
       role: string;
+      githubUsername?: string | null;
     } & DefaultSession["user"];
   }
 
   interface User {
     role: string;
+    githubUsername?: string | null;
   }
 }
 
@@ -42,14 +44,47 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         // 관리자 이메일 체크해서 role 설정
         const isAdmin = user.email && adminEmails.includes(user.email);
         session.user.role = isAdmin ? "admin" : user.role || "user";
+        session.user.githubUsername = user.githubUsername;
       }
       return session;
     },
   },
   debug: true,
   events: {
-    async signIn({ user, isNewUser }) {
-      // 처음 로그인 시 또는 관리자 이메일이면 DB에 role 업데이트
+    async signIn({ user, account, profile }) {
+      // GitHub 로그인 시 username과 image 저장
+      if (account?.provider === "github" && profile && user.email) {
+        try {
+          const githubUsername = (profile as any).login || null;
+          const githubImage = (profile as any).avatar_url || null;
+          await prisma.user.update({
+            where: { email: user.email },
+            data: {
+              githubUsername,
+              ...(githubImage && { image: githubImage })
+            },
+          });
+        } catch (error) {
+          console.error("Failed to update GitHub data:", error);
+        }
+      }
+
+      // Google 로그인 시 image 저장
+      if (account?.provider === "google" && profile && user.email) {
+        try {
+          const googleImage = (profile as any).picture || null;
+          if (googleImage) {
+            await prisma.user.update({
+              where: { email: user.email },
+              data: { image: googleImage },
+            });
+          }
+        } catch (error) {
+          console.error("Failed to update Google image:", error);
+        }
+      }
+
+      // 관리자 이메일 체크해서 role 업데이트
       if (user.email && adminEmails.includes(user.email)) {
         try {
           await prisma.user.update({

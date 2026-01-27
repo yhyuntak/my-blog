@@ -24,6 +24,7 @@ export async function GET(request: NextRequest) {
             name: true,
             image: true,
             role: true,
+            githubUsername: true,
           },
         },
       },

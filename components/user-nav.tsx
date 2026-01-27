@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { User, LogOut, Settings, Shield, Plus } from "lucide-react";
+import { User, LogOut, Settings, Shield, Plus, Github } from "lucide-react";
 import Link from "next/link";
 import { Session } from "next-auth";
 import { signOut } from "next-auth/react";
@@ -64,6 +64,19 @@ export function UserNav({ user }: UserNavProps) {
           </div>
 
           <div className="p-1">
+            {user.githubUsername && (
+              <a
+                href={`https://github.com/${user.githubUsername}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={() => setIsOpen(false)}
+                className="flex items-center gap-2 px-3 py-2 text-sm rounded-md hover:bg-secondary transition-colors cursor-pointer"
+              >
+                <Github className="h-4 w-4" />
+                GitHub Profile
+              </a>
+            )}
+
             {user.role === "admin" && (
               <>
                 <Link

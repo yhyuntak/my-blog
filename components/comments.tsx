@@ -16,6 +16,7 @@ interface Comment {
     name: string | null;
     image: string | null;
     role: string;
+    githubUsername?: string | null;
   };
 }
 
@@ -185,7 +186,18 @@ export function Comments({ postSlug }: CommentsProps) {
               )}
               <div className="flex-1">
                 <div className="flex items-center gap-2 mb-1">
-                  <span className="font-medium">{comment.user.name}</span>
+                  {comment.user.githubUsername ? (
+                    <a
+                      href={`https://github.com/${comment.user.githubUsername}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="font-medium hover:text-primary transition-colors cursor-pointer"
+                    >
+                      {comment.user.name}
+                    </a>
+                  ) : (
+                    <span className="font-medium">{comment.user.name}</span>
+                  )}
                   {comment.user.role === "admin" && (
                     <span className="px-2 py-0.5 text-xs rounded-md bg-primary/10 text-primary">
                       Admin
