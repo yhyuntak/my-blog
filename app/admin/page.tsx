@@ -20,13 +20,13 @@ export default async function AdminPage() {
     prisma.comment.findMany({
       take: 10,
       orderBy: { createdAt: "desc" },
-      include: {
-        user: {
-          select: {
-            name: true,
-            image: true,
-          },
-        },
+      select: {
+        id: true,
+        content: true,
+        postSlug: true,
+        authorName: true,
+        authorImage: true,
+        createdAt: true,
       },
     }),
   ]);
@@ -154,17 +154,17 @@ export default async function AdminPage() {
                 {recentComments.map((comment) => (
                   <div key={comment.id} className="p-4 hover:bg-secondary/50">
                     <div className="flex gap-3">
-                      {comment.user.image && (
+                      {comment.authorImage && (
                         <img
-                          src={comment.user.image}
-                          alt={comment.user.name || "User"}
+                          src={comment.authorImage}
+                          alt={comment.authorName}
                           className="h-10 w-10 rounded-full"
                         />
                       )}
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-1">
                           <span className="font-medium">
-                            {comment.user.name}
+                            {comment.authorName}
                           </span>
                           <span className="text-sm text-muted-foreground">
                             {formatDistanceToNow(new Date(comment.createdAt), {

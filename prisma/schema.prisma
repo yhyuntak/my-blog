@@ -68,8 +68,17 @@ model Comment {
   id        String   @id @default(cuid())
   content   String
   postSlug  String
-  userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Authorization link (nullable for deleted users)
+  userId    String?
+  user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  // Author snapshot (captured at comment creation)
+  authorName           String
+  authorImage          String?
+  authorRole           String   @default("user")
+  authorGithubUsername String?
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 

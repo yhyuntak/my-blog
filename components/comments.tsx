@@ -11,13 +11,11 @@ interface Comment {
   content: string;
   createdAt: string;
   updatedAt: string;
-  user: {
-    id: string;
-    name: string | null;
-    image: string | null;
-    role: string;
-    githubUsername?: string | null;
-  };
+  userId: string | null; // Nullable for deleted users
+  authorName: string;
+  authorImage: string | null;
+  authorRole: string;
+  authorGithubUsername: string | null;
 }
 
 interface CommentsProps {
@@ -177,28 +175,28 @@ export function Comments({ postSlug }: CommentsProps) {
         ) : (
           comments.map((comment) => (
             <div key={comment.id} className="flex gap-3">
-              {comment.user.image && (
+              {comment.authorImage && (
                 <img
-                  src={comment.user.image}
-                  alt={comment.user.name || "User"}
+                  src={comment.authorImage}
+                  alt={comment.authorName}
                   className="h-10 w-10 rounded-full"
                 />
               )}
               <div className="flex-1">
                 <div className="flex items-center gap-2 mb-1">
-                  {comment.user.githubUsername ? (
+                  {comment.authorGithubUsername ? (
                     <a
-                      href={`https://github.com/${comment.user.githubUsername}`}
+                      href={`https://github.com/${comment.authorGithubUsername}`}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="font-medium hover:text-primary transition-colors cursor-pointer"
                     >
-                      {comment.user.name}
+                      {comment.authorName}
                     </a>
                   ) : (
-                    <span className="font-medium">{comment.user.name}</span>
+                    <span className="font-medium">{comment.authorName}</span>
                   )}
-                  {comment.user.role === "admin" && (
+                  {comment.authorRole === "admin" && (
                     <span className="px-2 py-0.5 text-xs rounded-md bg-primary/10 text-primary">
                       Admin
                     </span>
@@ -245,10 +243,11 @@ export function Comments({ postSlug }: CommentsProps) {
                       {comment.content}
                     </p>
                     {session?.user &&
-                      (session.user.id === comment.user.id ||
+                      comment.userId &&
+                      (session.user.id === comment.userId ||
                         session.user.role === "admin") && (
                         <div className="flex gap-2 mt-2">
-                          {session.user.id === comment.user.id && (
+                          {session.user.id === comment.userId && (
                             <button
                               onClick={() => {
                                 setEditingId(comment.id);

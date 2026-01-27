@@ -69,18 +69,19 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         }
       }
 
-      // Google 로그인 시 image 저장
+      // Google 로그인 시 image 저장 및 githubUsername 제거
       if (account?.provider === "google" && profile && user.email) {
         try {
           const googleImage = (profile as any).picture || null;
-          if (googleImage) {
-            await prisma.user.update({
-              where: { email: user.email },
-              data: { image: googleImage },
-            });
-          }
+          await prisma.user.update({
+            where: { email: user.email },
+            data: {
+              ...(googleImage && { image: googleImage }),
+              githubUsername: null, // Google 로그인 시 GitHub username 제거
+            },
+          });
         } catch (error) {
-          console.error("Failed to update Google image:", error);
+          console.error("Failed to update Google data:", error);
         }
       }
 

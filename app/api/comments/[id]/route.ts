@@ -28,28 +28,33 @@ export async function PUT(
     // Check if comment exists and belongs to user
     const existingComment = await prisma.comment.findUnique({
       where: { id },
+      select: { userId: true },
     });
 
     if (!existingComment) {
       return NextResponse.json({ error: "Comment not found" }, { status: 404 });
     }
 
-    if (existingComment.userId !== session.user.id) {
+    // User can only edit their own comments
+    if (!existingComment.userId || existingComment.userId !== session.user.id) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
+    // Update only content (do NOT update author snapshot)
     const comment = await prisma.comment.update({
       where: { id },
       data: { content },
-      include: {
-        user: {
-          select: {
-            id: true,
-            name: true,
-            image: true,
-            role: true,
-          },
-        },
+      select: {
+        id: true,
+        content: true,
+        postSlug: true,
+        userId: true,
+        authorName: true,
+        authorImage: true,
+        authorRole: true,
+        authorGithubUsername: true,
+        createdAt: true,
+        updatedAt: true,
       },
     });
 
@@ -80,13 +85,16 @@ export async function DELETE(
     // Check if comment exists
     const existingComment = await prisma.comment.findUnique({
       where: { id },
+      select: { userId: true },
     });
 
     if (!existingComment) {
       return NextResponse.json({ error: "Comment not found" }, { status: 404 });
     }
 
-    // Allow deletion if user is owner or admin
+    // Allow deletion if:
+    // 1. User is owner (userId matches and exists)
+    // 2. User is admin
     if (
       existingComment.userId !== session.user.id &&
       session.user.role !== "admin"

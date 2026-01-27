@@ -17,16 +17,17 @@ export async function GET(request: NextRequest) {
 
     const comments = await prisma.comment.findMany({
       where: { postSlug },
-      include: {
-        user: {
-          select: {
-            id: true,
-            name: true,
-            image: true,
-            role: true,
-            githubUsername: true,
-          },
-        },
+      select: {
+        id: true,
+        content: true,
+        postSlug: true,
+        userId: true,
+        authorName: true,
+        authorImage: true,
+        authorRole: true,
+        authorGithubUsername: true,
+        createdAt: true,
+        updatedAt: true,
       },
       orderBy: { createdAt: "desc" },
     });
@@ -65,16 +66,23 @@ export async function POST(request: NextRequest) {
         content,
         postSlug,
         userId: session.user.id,
+        // Snapshot current session data
+        authorName: session.user.name || "Anonymous",
+        authorImage: session.user.image || null,
+        authorRole: session.user.role || "user",
+        authorGithubUsername: session.user.githubUsername || null,
       },
-      include: {
-        user: {
-          select: {
-            id: true,
-            name: true,
-            image: true,
-            role: true,
-          },
-        },
+      select: {
+        id: true,
+        content: true,
+        postSlug: true,
+        userId: true,
+        authorName: true,
+        authorImage: true,
+        authorRole: true,
+        authorGithubUsername: true,
+        createdAt: true,
+        updatedAt: true,
       },
     });
 
