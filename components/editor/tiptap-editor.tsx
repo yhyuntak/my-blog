@@ -76,7 +76,7 @@ export default function TipTapEditor({
       if (content !== currentMarkdown) {
         // Parse markdown to JSON first, then set content
         const parsedContent = editor.markdown.parse(content);
-        editor.commands.setContent(parsedContent, false);
+        editor.commands.setContent(parsedContent, { emitUpdate: false });
       }
     }
   }, [content, editor]);
