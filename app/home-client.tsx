@@ -77,10 +77,10 @@ export default function HomeClient({
                     {featuredPost.readingTime}
                   </span>
                 </div>
-                <h2 className="text-3xl font-bold tracking-tight group-hover:text-primary transition-colors">
+                <h2 className="text-3xl font-bold tracking-tight group-hover:text-primary transition-colors break-words">
                   {featuredPost.title}
                 </h2>
-                <p className="text-lg text-muted-foreground">
+                <p className="text-lg text-muted-foreground break-words">
                   {featuredPost.excerpt}
                 </p>
                 <div className="flex items-center gap-2 text-primary font-medium">
@@ -117,10 +117,10 @@ export default function HomeClient({
                         {formatDate(post.date)}
                       </time>
                     </div>
-                    <h3 className="font-semibold text-lg group-hover:text-primary transition-colors line-clamp-2">
+                    <h3 className="font-semibold text-lg group-hover:text-primary transition-colors line-clamp-2 break-words">
                       {post.title}
                     </h3>
-                    <p className="text-sm text-muted-foreground line-clamp-3">
+                    <p className="text-sm text-muted-foreground line-clamp-3 break-words">
                       {post.excerpt}
                     </p>
                   </div>
@@ -171,10 +171,10 @@ export default function HomeClient({
                         >
                           {formatDate(post.date)}
                         </time>
-                        <h3 className="font-semibold group-hover:text-primary transition-colors line-clamp-2">
+                        <h3 className="font-semibold group-hover:text-primary transition-colors line-clamp-2 break-words">
                           {post.title}
                         </h3>
-                        <p className="text-sm text-muted-foreground line-clamp-2">
+                        <p className="text-sm text-muted-foreground line-clamp-2 break-words">
                           {post.excerpt}
                         </p>
                       </div>

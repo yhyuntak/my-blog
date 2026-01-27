@@ -1,10 +1,10 @@
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
-import { formatDistanceToNow } from "date-fns";
-import { MessageSquare, Users, FileText, Plus, Settings, FolderTree } from "lucide-react";
+import { MessageSquare, Users, FileText, Plus, FolderTree } from "lucide-react";
 import { getAllPosts } from "@/lib/posts";
 import Link from "next/link";
+import { AdminRecentComments } from "@/components/admin-recent-comments";
 
 export default async function AdminPage() {
   const session = await auth();
@@ -90,23 +90,7 @@ export default async function AdminPage() {
         </div>
 
         {/* Quick Actions */}
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          <Link
-            href="/admin/posts"
-            className="p-6 rounded-lg border bg-card hover:bg-secondary/50 transition-colors cursor-pointer"
-          >
-            <div className="flex items-center gap-4">
-              <div className="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center">
-                <Settings className="h-6 w-6 text-primary" />
-              </div>
-              <div>
-                <h3 className="font-semibold mb-1">Manage Posts</h3>
-                <p className="text-sm text-muted-foreground">
-                  Edit, delete, or create new blog posts
-                </p>
-              </div>
-            </div>
-          </Link>
+        <div className="grid gap-4 md:grid-cols-2">
           <Link
             href="/admin/posts/new"
             className="p-6 rounded-lg border bg-card hover:bg-secondary/50 transition-colors cursor-pointer"
@@ -116,8 +100,8 @@ export default async function AdminPage() {
                 <Plus className="h-6 w-6 text-primary" />
               </div>
               <div>
-                <h3 className="font-semibold mb-1">New Post</h3>
-                <p className="text-sm text-muted-foreground">
+                <h3 className="font-semibold mb-1 break-words">New Post</h3>
+                <p className="text-sm text-muted-foreground break-words">
                   Create a new blog post
                 </p>
               </div>
@@ -132,8 +116,8 @@ export default async function AdminPage() {
                 <FolderTree className="h-6 w-6 text-primary" />
               </div>
               <div>
-                <h3 className="font-semibold mb-1">Manage Categories</h3>
-                <p className="text-sm text-muted-foreground">
+                <h3 className="font-semibold mb-1 break-words">Manage Categories</h3>
+                <p className="text-sm text-muted-foreground break-words">
                   Create and organize blog categories
                 </p>
               </div>
@@ -145,46 +129,7 @@ export default async function AdminPage() {
         <div className="space-y-4">
           <h2 className="text-2xl font-semibold">Recent Comments</h2>
           <div className="rounded-lg border">
-            {recentComments.length === 0 ? (
-              <div className="p-8 text-center text-muted-foreground">
-                No comments yet
-              </div>
-            ) : (
-              <div className="divide-y">
-                {recentComments.map((comment) => (
-                  <div key={comment.id} className="p-4 hover:bg-secondary/50">
-                    <div className="flex gap-3">
-                      {comment.authorImage && (
-                        <img
-                          src={comment.authorImage}
-                          alt={comment.authorName}
-                          className="h-10 w-10 rounded-full"
-                        />
-                      )}
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 mb-1">
-                          <span className="font-medium">
-                            {comment.authorName}
-                          </span>
-                          <span className="text-sm text-muted-foreground">
-                            {formatDistanceToNow(new Date(comment.createdAt), {
-                              addSuffix: true,
-                            })}
-                          </span>
-                        </div>
-                        <p className="text-sm text-muted-foreground mb-1">
-                          on{" "}
-                          <span className="text-foreground">
-                            {comment.postSlug}
-                          </span>
-                        </p>
-                        <p className="text-sm line-clamp-2">{comment.content}</p>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
+            <AdminRecentComments initialComments={recentComments} />
           </div>
         </div>
       </div>

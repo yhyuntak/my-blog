@@ -4,7 +4,18 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, Save } from "lucide-react";
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import { TagSelector } from "./tag-selector";
+
+// Dynamic import to avoid SSR issues with TipTap editor
+const TipTapEditor = dynamic(() => import("./editor/tiptap-editor"), {
+  ssr: false,
+  loading: () => (
+    <div className="w-full min-h-[500px] rounded-lg border bg-background flex items-center justify-center text-muted-foreground">
+      Loading editor...
+    </div>
+  ),
+});
 
 interface PostFormProps {
   initialData?: {
@@ -122,7 +133,8 @@ export function PostForm({ initialData, isEdit = false }: PostFormProps) {
       }
 
       const { post } = await response.json();
-      router.push(`/admin/posts`);
+      // Always go to the post page after saving
+      router.push(`/posts/${post.slug}`);
       router.refresh();
     } catch (error) {
       console.error("Error saving post:", error);
@@ -205,18 +217,14 @@ export function PostForm({ initialData, isEdit = false }: PostFormProps) {
             htmlFor="content"
             className="block text-sm font-medium mb-2"
           >
-            Content * (Markdown)
+            Content * (WYSIWYG Editor)
           </label>
-          <textarea
-            id="content"
-            required
-            value={formData.content}
-            onChange={(e) =>
-              setFormData((prev) => ({ ...prev, content: e.target.value }))
+          <TipTapEditor
+            content={formData.content}
+            onChange={(markdown) =>
+              setFormData((prev) => ({ ...prev, content: markdown }))
             }
-            rows={20}
-            className="w-full px-4 py-2 rounded-lg border bg-background focus:outline-none focus:ring-2 focus:ring-primary resize-none font-mono text-sm"
-            placeholder="Write your post content in Markdown..."
+            placeholder="Start writing... Type markdown and see it come to life!"
           />
         </div>
 
@@ -311,7 +319,7 @@ export function PostForm({ initialData, isEdit = false }: PostFormProps) {
             : "Create Post"}
         </button>
         <Link
-          href="/admin/posts"
+          href={isEdit && initialData?.slug ? `/posts/${initialData.slug}` : "/admin"}
           className="inline-flex items-center gap-2 px-6 py-2 rounded-lg border hover:bg-secondary transition-colors cursor-pointer"
         >
           <ArrowLeft className="h-4 w-4" />

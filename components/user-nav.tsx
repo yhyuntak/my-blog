@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { User, LogOut, Settings, Shield, Plus, Github } from "lucide-react";
+import { User, LogOut, Settings, Shield, Plus, Github, FolderTree } from "lucide-react";
 import Link from "next/link";
 import { Session } from "next-auth";
 import { signOut } from "next-auth/react";
@@ -94,6 +94,14 @@ export function UserNav({ user }: UserNavProps) {
                 >
                   <Settings className="h-4 w-4" />
                   Dashboard
+                </Link>
+                <Link
+                  href="/admin/categories"
+                  onClick={() => setIsOpen(false)}
+                  className="flex items-center gap-2 px-3 py-2 text-sm rounded-md hover:bg-secondary transition-colors cursor-pointer"
+                >
+                  <FolderTree className="h-4 w-4" />
+                  Categories
                 </Link>
               </>
             )}

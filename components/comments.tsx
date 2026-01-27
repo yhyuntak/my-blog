@@ -239,7 +239,7 @@ export function Comments({ postSlug }: CommentsProps) {
                   </div>
                 ) : (
                   <>
-                    <p className="text-foreground whitespace-pre-wrap">
+                    <p className="text-foreground whitespace-pre-wrap break-words">
                       {comment.content}
                     </p>
                     {session?.user &&

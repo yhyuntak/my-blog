@@ -29,10 +29,10 @@ export function PostCard({ post }: PostCardProps) {
     >
       <div className="space-y-3">
         <div className="space-y-2">
-          <h2 className="text-2xl font-semibold group-hover:text-primary transition-colors">
+          <h2 className="text-2xl font-semibold group-hover:text-primary transition-colors break-words">
             {post.title}
           </h2>
-          <p className="text-muted-foreground">{post.excerpt}</p>
+          <p className="text-muted-foreground break-words">{post.excerpt}</p>
         </div>
 
         <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
