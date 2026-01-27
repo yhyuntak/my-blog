@@ -41,7 +41,7 @@ export function DeletePostButton({ slug, title }: DeletePostButtonProps) {
     <button
       onClick={handleDelete}
       disabled={isDeleting}
-      className="p-2 rounded-lg hover:bg-destructive/10 hover:text-destructive transition-colors disabled:opacity-50"
+      className="p-2 rounded-lg hover:bg-destructive/10 hover:text-destructive transition-colors disabled:opacity-50 cursor-pointer"
       title="Delete post"
     >
       <Trash2 className="h-4 w-4" />

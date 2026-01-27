@@ -53,7 +53,7 @@ export default function AboutPage() {
             href="https://github.com"
             target="_blank"
             rel="noreferrer"
-            className="flex items-center justify-center w-10 h-10 rounded-lg border hover:bg-secondary transition-colors"
+            className="flex items-center justify-center w-10 h-10 rounded-lg border hover:bg-secondary transition-colors cursor-pointer"
           >
             <Github className="h-5 w-5" />
             <span className="sr-only">GitHub</span>
@@ -62,14 +62,14 @@ export default function AboutPage() {
             href="https://twitter.com"
             target="_blank"
             rel="noreferrer"
-            className="flex items-center justify-center w-10 h-10 rounded-lg border hover:bg-secondary transition-colors"
+            className="flex items-center justify-center w-10 h-10 rounded-lg border hover:bg-secondary transition-colors cursor-pointer"
           >
             <Twitter className="h-5 w-5" />
             <span className="sr-only">Twitter</span>
           </Link>
           <Link
             href="mailto:your@email.com"
-            className="flex items-center justify-center w-10 h-10 rounded-lg border hover:bg-secondary transition-colors"
+            className="flex items-center justify-center w-10 h-10 rounded-lg border hover:bg-secondary transition-colors cursor-pointer"
           >
             <Mail className="h-5 w-5" />
             <span className="sr-only">Email</span>

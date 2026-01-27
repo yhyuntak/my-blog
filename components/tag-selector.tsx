@@ -60,7 +60,7 @@ export function TagSelector({
             <button
               type="button"
               onClick={() => removeTag(tag)}
-              className="hover:bg-primary/20 rounded-sm p-0.5"
+              className="hover:bg-primary/20 rounded-sm p-0.5 cursor-pointer"
             >
               <X className="h-3 w-3" />
             </button>
@@ -94,7 +94,7 @@ export function TagSelector({
               key={tag}
               type="button"
               onClick={() => addTag(tag)}
-              className="w-full px-4 py-2 text-left text-sm hover:bg-secondary transition-colors"
+              className="w-full px-4 py-2 text-left text-sm hover:bg-secondary transition-colors cursor-pointer"
             >
               {tag}
             </button>

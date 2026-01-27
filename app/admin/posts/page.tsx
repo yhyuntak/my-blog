@@ -45,7 +45,7 @@ export default async function AdminPostsPage() {
           </div>
           <Link
             href="/admin/posts/new"
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-colors cursor-pointer"
           >
             <Plus className="h-4 w-4" />
             New Post
@@ -62,7 +62,7 @@ export default async function AdminPostsPage() {
               {posts.map((post) => (
                 <div
                   key={post.id}
-                  className="p-4 hover:bg-secondary/50 transition-colors"
+                  className="p-4 hover:bg-secondary/50 transition-colors cursor-pointer"
                 >
                   <div className="flex items-center justify-between gap-4">
                     <div className="flex-1 min-w-0">
@@ -91,7 +91,7 @@ export default async function AdminPostsPage() {
                     <div className="flex items-center gap-2">
                       <Link
                         href={`/admin/posts/${post.slug}/edit`}
-                        className="p-2 rounded-lg hover:bg-secondary transition-colors"
+                        className="p-2 rounded-lg hover:bg-secondary transition-colors cursor-pointer"
                         title="Edit post"
                       >
                         <Pencil className="h-4 w-4" />

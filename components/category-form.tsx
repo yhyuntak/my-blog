@@ -95,7 +95,7 @@ export default function CategoryForm({ category }: CategoryFormProps) {
     <div>
       <Link
         href="/admin/categories"
-        className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground mb-6"
+        className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground mb-6 cursor-pointer"
       >
         <ArrowLeft className="h-4 w-4" />
         Back to categories
@@ -167,7 +167,7 @@ export default function CategoryForm({ category }: CategoryFormProps) {
               <button
                 type="button"
                 onClick={() => setAutoSlug(true)}
-                className="px-4 py-2 text-sm border rounded-lg hover:bg-secondary"
+                className="px-4 py-2 text-sm border rounded-lg hover:bg-secondary cursor-pointer"
               >
                 Auto
               </button>
@@ -199,7 +199,7 @@ export default function CategoryForm({ category }: CategoryFormProps) {
           <button
             type="submit"
             disabled={isSubmitting}
-            className="px-6 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="px-6 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
           >
             {isSubmitting
               ? "Saving..."

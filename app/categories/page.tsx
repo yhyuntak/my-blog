@@ -32,7 +32,7 @@ export default async function CategoriesPage() {
               <Link
                 key={category.id}
                 href={`/category/${category.slug}`}
-                className="group p-6 rounded-lg border bg-card hover:bg-secondary/50 transition-colors"
+                className="group p-6 rounded-lg border bg-card hover:bg-secondary/50 transition-colors cursor-pointer"
               >
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex-1 min-w-0">

@@ -55,7 +55,7 @@ export function CategoriesDropdown({ categories }: CategoriesDropdownProps) {
     <div className="relative" ref={dropdownRef}>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-1 transition-colors hover:text-foreground/80 text-foreground/60"
+        className="flex items-center gap-1 transition-colors hover:text-foreground/80 text-foreground/60 cursor-pointer"
       >
         Categories
         <ChevronDown className="h-3 w-3" />
@@ -74,7 +74,7 @@ export function CategoriesDropdown({ categories }: CategoriesDropdownProps) {
                   {category.children.length > 0 ? (
                     <button
                       onClick={(e) => toggleExpand(category.id, e)}
-                      className="p-2 hover:bg-secondary transition-colors"
+                      className="p-2 hover:bg-secondary transition-colors cursor-pointer"
                     >
                       {expandedCategories.has(category.id) ? (
                         <ChevronDown className="h-3 w-3" />
@@ -88,15 +88,10 @@ export function CategoriesDropdown({ categories }: CategoriesDropdownProps) {
                   <Link
                     href={`/category/${category.slug}`}
                     onClick={() => setIsOpen(false)}
-                    className="flex-1 flex items-center justify-between pr-4 py-2 text-sm hover:bg-secondary transition-colors"
+                    className="flex-1 flex items-center gap-2 pr-4 py-2 text-sm hover:bg-secondary transition-colors cursor-pointer"
                   >
-                    <div className="flex items-center gap-2">
-                      <FolderTree className="h-4 w-4" />
-                      <span className="font-medium">{category.name}</span>
-                    </div>
-                    <span className="text-xs text-muted-foreground">
-                      {category.postCount}
-                    </span>
+                    <FolderTree className="h-4 w-4" />
+                    <span className="font-medium">{category.name}</span>
                   </Link>
                 </div>
 
@@ -106,17 +101,12 @@ export function CategoriesDropdown({ categories }: CategoriesDropdownProps) {
                     {category.children.map((child) => (
                       <Link
                         key={child.id}
-                        href={`/category/${child.slug}`}
+                        href={`/category/${category.slug}?sub=${child.slug}`}
                         onClick={() => setIsOpen(false)}
-                        className="flex items-center justify-between pl-6 pr-4 py-2 text-sm hover:bg-secondary transition-colors"
+                        className="flex items-center gap-2 pl-6 pr-4 py-2 text-sm hover:bg-secondary transition-colors cursor-pointer"
                       >
-                        <div className="flex items-center gap-2">
-                          <Folder className="h-3 w-3" />
-                          <span>{child.name}</span>
-                        </div>
-                        <span className="text-xs text-muted-foreground">
-                          {child.postCount}
-                        </span>
+                        <Folder className="h-3 w-3" />
+                        <span>{child.name}</span>
                       </Link>
                     ))}
                   </div>

@@ -142,7 +142,7 @@ export function Comments({ postSlug }: CommentsProps) {
                 <button
                   type="submit"
                   disabled={loading || !newComment.trim()}
-                  className="px-4 py-2 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  className="px-4 py-2 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors cursor-pointer"
                 >
                   {loading ? "Posting..." : "Post Comment"}
                 </button>
@@ -210,7 +210,7 @@ export function Comments({ postSlug }: CommentsProps) {
                       <button
                         onClick={() => handleEdit(comment.id)}
                         disabled={loading}
-                        className="inline-flex items-center gap-1 px-3 py-1 text-sm rounded-md bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
+                        className="inline-flex items-center gap-1 px-3 py-1 text-sm rounded-md bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-50 cursor-pointer"
                       >
                         <Check className="h-3 w-3" />
                         Save
@@ -220,7 +220,7 @@ export function Comments({ postSlug }: CommentsProps) {
                           setEditingId(null);
                           setEditContent("");
                         }}
-                        className="inline-flex items-center gap-1 px-3 py-1 text-sm rounded-md hover:bg-secondary"
+                        className="inline-flex items-center gap-1 px-3 py-1 text-sm rounded-md hover:bg-secondary cursor-pointer"
                       >
                         <X className="h-3 w-3" />
                         Cancel
@@ -242,7 +242,7 @@ export function Comments({ postSlug }: CommentsProps) {
                                 setEditingId(comment.id);
                                 setEditContent(comment.content);
                               }}
-                              className="inline-flex items-center gap-1 px-2 py-1 text-xs rounded-md hover:bg-secondary text-muted-foreground"
+                              className="inline-flex items-center gap-1 px-2 py-1 text-xs rounded-md hover:bg-secondary text-muted-foreground cursor-pointer"
                             >
                               <Edit2 className="h-3 w-3" />
                               Edit
@@ -251,7 +251,7 @@ export function Comments({ postSlug }: CommentsProps) {
                           <button
                             onClick={() => handleDelete(comment.id)}
                             disabled={loading}
-                            className="inline-flex items-center gap-1 px-2 py-1 text-xs rounded-md hover:bg-destructive/10 text-destructive disabled:opacity-50"
+                            className="inline-flex items-center gap-1 px-2 py-1 text-xs rounded-md hover:bg-destructive/10 text-destructive disabled:opacity-50 cursor-pointer"
                           >
                             <Trash2 className="h-3 w-3" />
                             Delete

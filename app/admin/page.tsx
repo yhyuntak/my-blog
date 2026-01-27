@@ -93,7 +93,7 @@ export default async function AdminPage() {
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           <Link
             href="/admin/posts"
-            className="p-6 rounded-lg border bg-card hover:bg-secondary/50 transition-colors"
+            className="p-6 rounded-lg border bg-card hover:bg-secondary/50 transition-colors cursor-pointer"
           >
             <div className="flex items-center gap-4">
               <div className="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center">
@@ -109,7 +109,7 @@ export default async function AdminPage() {
           </Link>
           <Link
             href="/admin/posts/new"
-            className="p-6 rounded-lg border bg-card hover:bg-secondary/50 transition-colors"
+            className="p-6 rounded-lg border bg-card hover:bg-secondary/50 transition-colors cursor-pointer"
           >
             <div className="flex items-center gap-4">
               <div className="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center">
@@ -125,7 +125,7 @@ export default async function AdminPage() {
           </Link>
           <Link
             href="/admin/categories"
-            className="p-6 rounded-lg border bg-card hover:bg-secondary/50 transition-colors"
+            className="p-6 rounded-lg border bg-card hover:bg-secondary/50 transition-colors cursor-pointer"
           >
             <div className="flex items-center gap-4">
               <div className="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center">

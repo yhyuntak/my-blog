@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { Search as SearchIcon, X } from "lucide-react";
 import Link from "next/link";
 import Fuse from "fuse.js";
@@ -13,21 +13,29 @@ interface SearchProps {
 export function Search({ posts }: SearchProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [query, setQuery] = useState("");
-  const [results, setResults] = useState<PostPreview[]>([]);
 
-  const fuse = new Fuse(posts, {
-    keys: ["title", "excerpt", "tags.name", "category"],
-    threshold: 0.3,
-  });
+  const fuse = useMemo(
+    () =>
+      new Fuse(posts, {
+        keys: ["title", "excerpt", "tags.name", "category"],
+        threshold: 0.3,
+      }),
+    [posts]
+  );
 
-  useEffect(() => {
+  const results = useMemo(() => {
     if (query.length > 0) {
       const searchResults = fuse.search(query);
-      setResults(searchResults.map((result) => result.item));
-    } else {
-      setResults([]);
+      return searchResults.map((result) => result.item);
     }
-  }, [query]);
+    return [];
+  }, [query, fuse]);
+
+  const handleClose = useCallback(() => {
+    setIsOpen(false);
+    setQuery("");
+    document.body.style.overflow = "unset";
+  }, []);
 
   const handleKeyDown = useCallback((e: KeyboardEvent) => {
     if ((e.metaKey || e.ctrlKey) && e.key === "k") {
@@ -35,9 +43,9 @@ export function Search({ posts }: SearchProps) {
       setIsOpen(true);
     }
     if (e.key === "Escape") {
-      setIsOpen(false);
+      handleClose();
     }
-  }, []);
+  }, [handleClose]);
 
   useEffect(() => {
     document.addEventListener("keydown", handleKeyDown);
@@ -49,15 +57,17 @@ export function Search({ posts }: SearchProps) {
       document.body.style.overflow = "hidden";
     } else {
       document.body.style.overflow = "unset";
-      setQuery("");
     }
+    return () => {
+      document.body.style.overflow = "unset";
+    };
   }, [isOpen]);
 
   if (!isOpen) {
     return (
       <button
         onClick={() => setIsOpen(true)}
-        className="flex items-center gap-2 px-3 py-1.5 text-sm rounded-lg border hover:bg-secondary transition-colors"
+        className="flex items-center gap-2 px-3 py-1.5 text-sm rounded-lg border hover:bg-secondary transition-colors cursor-pointer"
       >
         <SearchIcon className="h-4 w-4" />
         <span className="hidden sm:inline">Search</span>
@@ -72,7 +82,7 @@ export function Search({ posts }: SearchProps) {
     <>
       <div
         className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50"
-        onClick={() => setIsOpen(false)}
+        onClick={handleClose}
       />
       <div className="fixed inset-0 z-50 flex items-start justify-center p-4 pt-[20vh]">
         <div className="w-full max-w-2xl bg-background rounded-lg border shadow-lg">
@@ -87,8 +97,8 @@ export function Search({ posts }: SearchProps) {
               autoFocus
             />
             <button
-              onClick={() => setIsOpen(false)}
-              className="p-2 hover:bg-secondary rounded-lg transition-colors"
+              onClick={handleClose}
+              className="p-2 hover:bg-secondary rounded-lg transition-colors cursor-pointer"
             >
               <X className="h-5 w-5" />
             </button>
@@ -105,8 +115,8 @@ export function Search({ posts }: SearchProps) {
                   <Link
                     key={post.slug}
                     href={`/posts/${post.slug}`}
-                    onClick={() => setIsOpen(false)}
-                    className="block p-3 rounded-lg hover:bg-secondary transition-colors"
+                    onClick={handleClose}
+                    className="block p-3 rounded-lg hover:bg-secondary transition-colors cursor-pointer"
                   >
                     <div className="font-medium">{post.title}</div>
                     <div className="text-sm text-muted-foreground line-clamp-1">

@@ -32,7 +32,7 @@ export function UserNav({ user }: UserNavProps) {
     <div className="relative" ref={dropdownRef}>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-2 rounded-lg hover:bg-secondary px-2 py-1.5 transition-colors"
+        className="flex items-center gap-2 rounded-lg hover:bg-secondary px-2 py-1.5 transition-colors cursor-pointer"
       >
         {user.image ? (
           <img
@@ -69,7 +69,7 @@ export function UserNav({ user }: UserNavProps) {
                 <Link
                   href="/admin/posts/new"
                   onClick={() => setIsOpen(false)}
-                  className="flex items-center gap-2 px-3 py-2 text-sm rounded-md hover:bg-secondary transition-colors"
+                  className="flex items-center gap-2 px-3 py-2 text-sm rounded-md hover:bg-secondary transition-colors cursor-pointer"
                 >
                   <Plus className="h-4 w-4" />
                   New Post
@@ -77,7 +77,7 @@ export function UserNav({ user }: UserNavProps) {
                 <Link
                   href="/admin"
                   onClick={() => setIsOpen(false)}
-                  className="flex items-center gap-2 px-3 py-2 text-sm rounded-md hover:bg-secondary transition-colors"
+                  className="flex items-center gap-2 px-3 py-2 text-sm rounded-md hover:bg-secondary transition-colors cursor-pointer"
                 >
                   <Settings className="h-4 w-4" />
                   Dashboard
@@ -87,7 +87,7 @@ export function UserNav({ user }: UserNavProps) {
 
             <button
               onClick={() => signOut({ callbackUrl: "/" })}
-              className="w-full flex items-center gap-2 px-3 py-2 text-sm rounded-md hover:bg-secondary transition-colors text-left"
+              className="w-full flex items-center gap-2 px-3 py-2 text-sm rounded-md hover:bg-secondary transition-colors text-left cursor-pointer"
             >
               <LogOut className="h-4 w-4" />
               Sign out

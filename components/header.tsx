@@ -16,7 +16,7 @@ export async function Header() {
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="max-w-8xl mx-auto flex h-14 items-center px-4 lg:px-8">
         <div className="flex flex-1 items-center justify-between">
-          <Link href="/" className="flex items-center space-x-2">
+          <Link href="/" className="flex items-center space-x-2 cursor-pointer">
             <span className="font-bold text-xl">My Blog</span>
           </Link>
 
@@ -24,7 +24,7 @@ export async function Header() {
             <CategoriesDropdown categories={categories} />
             <Link
               href="/about"
-              className="transition-colors hover:text-foreground/80 text-foreground/60"
+              className="transition-colors hover:text-foreground/80 text-foreground/60 cursor-pointer"
             >
               About
             </Link>
@@ -34,7 +34,7 @@ export async function Header() {
             ) : (
               <Link
                 href="/auth/signin"
-                className="flex items-center gap-2 px-3 py-1.5 text-sm rounded-lg border hover:bg-secondary transition-colors"
+                className="flex items-center gap-2 px-3 py-1.5 text-sm rounded-lg border hover:bg-secondary transition-colors cursor-pointer"
               >
                 <LogIn className="h-4 w-4" />
                 Sign in

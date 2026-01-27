@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { formatDate } from "@/lib/utils";
 import { Calendar, Clock, FolderTree } from "lucide-react";
 import type { PostPreview } from "@/lib/posts";
@@ -10,15 +11,27 @@ interface PostCardProps {
 }
 
 export function PostCard({ post }: PostCardProps) {
+  const router = useRouter();
+
+  const handleCardClick = () => {
+    router.push(`/posts/${post.slug}`);
+  };
+
+  const handleCategoryClick = (e: React.MouseEvent, categorySlug: string) => {
+    e.stopPropagation();
+    router.push(`/category/${categorySlug}`);
+  };
+
   return (
-    <article className="p-6 rounded-lg border hover:bg-secondary/50 transition-colors">
+    <article
+      onClick={handleCardClick}
+      className="p-6 rounded-lg border hover:bg-secondary/50 transition-colors h-full cursor-pointer group"
+    >
       <div className="space-y-3">
         <div className="space-y-2">
-          <Link href={`/posts/${post.slug}`}>
-            <h2 className="text-2xl font-semibold hover:text-primary transition-colors">
-              {post.title}
-            </h2>
-          </Link>
+          <h2 className="text-2xl font-semibold group-hover:text-primary transition-colors">
+            {post.title}
+          </h2>
           <p className="text-muted-foreground">{post.excerpt}</p>
         </div>
 
@@ -32,13 +45,13 @@ export function PostCard({ post }: PostCardProps) {
             <span>{post.readingTime}</span>
           </div>
           {post.category && (
-            <Link
-              href={`/category/${post.category.slug}`}
-              className="flex items-center gap-1 hover:text-primary transition-colors"
+            <button
+              onClick={(e) => handleCategoryClick(e, post.category.slug)}
+              className="flex items-center gap-1 hover:text-primary transition-colors z-10 relative cursor-pointer"
             >
               <FolderTree className="h-4 w-4" />
               <span>{post.category.name}</span>
-            </Link>
+            </button>
           )}
         </div>
 

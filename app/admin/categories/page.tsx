@@ -25,7 +25,7 @@ export default async function AdminCategoriesPage() {
           </div>
           <Link
             href="/admin/categories/new"
-            className="inline-flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors"
+            className="inline-flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors cursor-pointer"
           >
             <Plus className="h-4 w-4" />
             New Category

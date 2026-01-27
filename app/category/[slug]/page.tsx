@@ -1,13 +1,19 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { getCategoryBySlug, getChildCategories } from "@/lib/categories";
-import { getPostsByCategory } from "@/lib/posts";
+import { getPostsByCategoryPaginated } from "@/lib/posts";
 import { PostCard } from "@/components/post-card";
+import { Pagination } from "@/components/pagination";
+import { CategorySidebar } from "@/components/category-sidebar";
 import { FolderTree, Folder, ChevronRight } from "lucide-react";
 
 interface CategoryPageProps {
   params: Promise<{
     slug: string;
+  }>;
+  searchParams: Promise<{
+    page?: string;
+    sub?: string;
   }>;
 }
 
@@ -27,27 +33,39 @@ export async function generateMetadata({ params }: CategoryPageProps) {
   };
 }
 
-export default async function CategoryPage({ params }: CategoryPageProps) {
+export default async function CategoryPage({ params, searchParams }: CategoryPageProps) {
   const { slug } = await params;
+  const { page, sub } = await searchParams;
   const category = await getCategoryBySlug(slug);
 
   if (!category) {
     notFound();
   }
 
-  const posts = await getPostsByCategory(slug);
+  const currentPage = page ? parseInt(page, 10) : 1;
   const children = await getChildCategories(category.id);
+
+  // Determine which posts to show based on ?sub parameter
+  const targetSlug = sub || slug;
+  const postsResult = await getPostsByCategoryPaginated(targetSlug, currentPage, 6);
+
+  // Find selected subcategory info if sub is present
+  const selectedSubcategory = sub ? children.find(c => c.slug === sub) : null;
+
+  const hasSubcategories = children.length > 0;
+  const isShowingSubcategory = !!selectedSubcategory;
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-16 lg:px-8">
       <div className="space-y-8">
+        {/* Header */}
         <div className="space-y-4">
           {/* Breadcrumb */}
           {category.parent && (
             <nav className="flex items-center gap-2 text-sm text-muted-foreground">
               <Link
                 href={`/category/${category.parent.slug}`}
-                className="hover:text-foreground transition-colors"
+                className="hover:text-foreground transition-colors cursor-pointer"
               >
                 {category.parent.name}
               </Link>
@@ -66,63 +84,96 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
               {category.parent ? "Subcategory" : "Category"}
             </span>
           </div>
+
           <h1 className="text-4xl font-bold tracking-tight">
-            {category.name}
+            {isShowingSubcategory ? (
+              <>
+                {category.name} <span className="text-muted-foreground">/</span> {selectedSubcategory.name}
+              </>
+            ) : (
+              category.name
+            )}
           </h1>
-          {category.description && (
+
+          {isShowingSubcategory && selectedSubcategory.description ? (
+            <p className="text-lg text-muted-foreground">
+              {selectedSubcategory.description}
+            </p>
+          ) : category.description && !isShowingSubcategory ? (
             <p className="text-lg text-muted-foreground">
               {category.description}
             </p>
-          )}
+          ) : null}
+
           <p className="text-sm text-muted-foreground">
-            {posts.length} {posts.length === 1 ? "post" : "posts"}
+            {postsResult.totalCount} {postsResult.totalCount === 1 ? "post" : "posts"}
           </p>
         </div>
 
-        {/* Subcategories */}
-        {children.length > 0 && (
-          <div className="space-y-4">
-            <h2 className="text-xl font-semibold">Subcategories</h2>
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {children.map((child) => (
-                <Link
-                  key={child.id}
-                  href={`/category/${child.slug}`}
-                  className="p-4 rounded-lg border hover:bg-secondary/50 transition-colors"
-                >
-                  <div className="flex items-center gap-3">
-                    <Folder className="h-5 w-5 text-primary" />
-                    <div>
-                      <h3 className="font-medium">{child.name}</h3>
-                      <p className="text-sm text-muted-foreground">
-                        {child.postCount} posts
-                      </p>
-                    </div>
-                  </div>
-                </Link>
-              ))}
-            </div>
-          </div>
-        )}
+        {/* Main Content */}
+        {hasSubcategories ? (
+          /* Sidebar Layout for categories with subcategories */
+          <div className="flex flex-col lg:flex-row gap-8">
+            {/* Sidebar - Subcategories */}
+            <CategorySidebar
+              categoryName={category.name}
+              categorySlug={category.slug}
+              categoryPostCount={category.postCount}
+              subcategories={children}
+            />
 
-        {/* Posts */}
-        {posts.length === 0 ? (
-          <div className="text-center py-16">
-            <p className="text-muted-foreground">
-              No posts in this category yet.
-            </p>
+            {/* Posts */}
+            <div className="flex-1 min-w-0">
+              {postsResult.items.length === 0 ? (
+                <div className="text-center py-16">
+                  <p className="text-muted-foreground">
+                    No posts in this category yet.
+                  </p>
+                </div>
+              ) : (
+                <div className="space-y-8">
+                  <div className="grid gap-6 md:grid-cols-2">
+                    {postsResult.items.map((post) => (
+                      <PostCard key={post.slug} post={post} />
+                    ))}
+                  </div>
+
+                  {/* Pagination */}
+                  <Pagination
+                    currentPage={postsResult.currentPage}
+                    totalPages={postsResult.totalPages}
+                    baseUrl={`/category/${slug}${sub ? `?sub=${sub}` : ""}`}
+                  />
+                </div>
+              )}
+            </div>
           </div>
         ) : (
-          <div className="space-y-4">
-            {children.length > 0 && (
-              <h2 className="text-xl font-semibold">Posts</h2>
+          /* Simple Layout for categories without subcategories */
+          <>
+            {postsResult.items.length === 0 ? (
+              <div className="text-center py-16">
+                <p className="text-muted-foreground">
+                  No posts in this category yet.
+                </p>
+              </div>
+            ) : (
+              <div className="space-y-8">
+                <div className="grid gap-8 md:grid-cols-2">
+                  {postsResult.items.map((post) => (
+                    <PostCard key={post.slug} post={post} />
+                  ))}
+                </div>
+
+                {/* Pagination */}
+                <Pagination
+                  currentPage={postsResult.currentPage}
+                  totalPages={postsResult.totalPages}
+                  baseUrl={`/category/${slug}`}
+                />
+              </div>
             )}
-            <div className="grid gap-8 md:grid-cols-2">
-              {posts.map((post) => (
-                <PostCard key={post.slug} post={post} />
-              ))}
-            </div>
-          </div>
+          </>
         )}
       </div>
     </div>

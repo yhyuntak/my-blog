@@ -21,7 +21,7 @@ export default function SignInPage() {
           >
             <button
               type="submit"
-              className="w-full flex items-center justify-center gap-3 rounded-lg border bg-background px-4 py-3 text-sm font-medium hover:bg-secondary transition-colors"
+              className="w-full flex items-center justify-center gap-3 rounded-lg border bg-background px-4 py-3 text-sm font-medium hover:bg-secondary transition-colors cursor-pointer"
             >
               <svg className="h-5 w-5" viewBox="0 0 24 24">
                 <path
@@ -53,7 +53,7 @@ export default function SignInPage() {
           >
             <button
               type="submit"
-              className="w-full flex items-center justify-center gap-3 rounded-lg border bg-background px-4 py-3 text-sm font-medium hover:bg-secondary transition-colors"
+              className="w-full flex items-center justify-center gap-3 rounded-lg border bg-background px-4 py-3 text-sm font-medium hover:bg-secondary transition-colors cursor-pointer"
             >
               <Github className="h-5 w-5" />
               Continue with GitHub

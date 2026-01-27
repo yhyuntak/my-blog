@@ -90,7 +90,7 @@ export default async function PostPage({ params }: PostPageProps) {
       <article className="max-w-4xl mx-auto px-4 py-16 lg:px-8">
       <Link
         href="/posts"
-        className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground mb-8"
+        className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground mb-8 cursor-pointer"
       >
         <ArrowLeft className="mr-2 h-4 w-4" />
         Back to posts
@@ -113,7 +113,7 @@ export default async function PostPage({ params }: PostPageProps) {
           {post.category && (
             <Link
               href={`/category/${post.category.slug}`}
-              className="flex items-center gap-1 hover:text-primary transition-colors"
+              className="flex items-center gap-1 hover:text-primary transition-colors cursor-pointer"
             >
               <FolderTree className="h-4 w-4" />
               <span>{post.category.name}</span>

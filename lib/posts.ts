@@ -237,6 +237,95 @@ export async function getPostsByCategory(categorySlug: string): Promise<PostPrev
   });
 }
 
+export interface PaginatedResult<T> {
+  items: T[];
+  totalCount: number;
+  totalPages: number;
+  currentPage: number;
+  hasNextPage: boolean;
+  hasPrevPage: boolean;
+}
+
+export async function getPostsByCategoryPaginated(
+  categorySlug: string,
+  page: number = 1,
+  perPage: number = 6
+): Promise<PaginatedResult<PostPreview>> {
+  const skip = (page - 1) * perPage;
+
+  const [posts, totalCount] = await Promise.all([
+    prisma.post.findMany({
+      where: {
+        published: true,
+        category: {
+          slug: categorySlug
+        }
+      },
+      include: {
+        author: {
+          select: {
+            name: true,
+          },
+        },
+        category: {
+          select: {
+            name: true,
+            slug: true,
+          },
+        },
+        tags: {
+          include: {
+            tag: {
+              select: { name: true, slug: true }
+            }
+          }
+        }
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+      skip,
+      take: perPage,
+    }),
+    prisma.post.count({
+      where: {
+        published: true,
+        category: {
+          slug: categorySlug
+        }
+      }
+    })
+  ]);
+
+  const totalPages = Math.ceil(totalCount / perPage);
+
+  const items = posts.map((post) => {
+    const stats = readingTime(post.content);
+    const tags = post.tags.map(pt => ({name: pt.tag.name, slug: pt.tag.slug}));
+
+    return {
+      slug: post.slug,
+      title: post.title,
+      date: post.createdAt.toISOString(),
+      excerpt: post.excerpt || "",
+      tags,
+      category: { name: post.category.name, slug: post.category.slug },
+      author: post.author.name || undefined,
+      coverImage: post.coverImage || undefined,
+      readingTime: stats.text,
+    };
+  });
+
+  return {
+    items,
+    totalCount,
+    totalPages,
+    currentPage: page,
+    hasNextPage: page < totalPages,
+    hasPrevPage: page > 1,
+  };
+}
+
 export async function getAllTags(): Promise<{ name: string; slug: string; count: number }[]> {
   const tags = await prisma.tag.findMany({
     include: {
