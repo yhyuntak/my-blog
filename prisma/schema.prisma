@@ -150,3 +150,32 @@ model PostTag {
   @@index([postId])
   @@index([tagId])
 }
+
+// Site Settings Model (Single record for global settings)
+model SiteSetting {
+  id String @id @default("default") // Single record with fixed ID
+
+  // General
+  siteTitle       String @default("My Blog")
+  siteDescription String @default("A modern blog about technology and development")
+
+  // Home Hero
+  homeHeroTitle    String @default("Welcome to My Blog")
+  homeHeroSubtitle String @default("A modern blog about technology, development, and everything in between.")
+
+  // About Page
+  aboutTitle    String @default("About Me")
+  aboutSubtitle String @default("Welcome to my corner of the internet")
+  aboutContent  String @default("Hi! I'm a developer passionate about building modern web applications.")
+
+  // Social Links
+  githubUrl String @default("https://github.com")
+  linkedinUrl String @default("https://linkedin.com/in/username")
+  emailAddress String @default("your@email.com")
+
+  // Footer
+  footerText String @default("Built with Next.js and Tailwind CSS.")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}

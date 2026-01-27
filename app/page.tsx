@@ -1,11 +1,13 @@
 import { getAllPosts } from "@/lib/posts";
 import { getAllCategories } from "@/lib/categories";
+import { getSiteSettings } from "@/lib/settings";
 import { WebSiteSchema } from "@/components/structured-data";
 import HomeClient from "./home-client";
 
 export default async function Home() {
   const allPosts = await getAllPosts();
   const categories = await getAllCategories();
+  const settings = await getSiteSettings();
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
 
   // Featured post (most recent)
@@ -29,6 +31,8 @@ export default async function Home() {
         featuredPost={featuredPost}
         recentPosts={recentPosts}
         categoryPosts={categoryPosts}
+        homeHeroTitle={settings.homeHeroTitle}
+        homeHeroSubtitle={settings.homeHeroSubtitle}
       />
     </>
   );

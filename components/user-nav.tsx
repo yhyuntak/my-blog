@@ -103,6 +103,14 @@ export function UserNav({ user }: UserNavProps) {
                   <FolderTree className="h-4 w-4" />
                   Categories
                 </Link>
+                <Link
+                  href="/admin/settings"
+                  onClick={() => setIsOpen(false)}
+                  className="flex items-center gap-2 px-3 py-2 text-sm rounded-md hover:bg-secondary transition-colors cursor-pointer"
+                >
+                  <Settings className="h-4 w-4" />
+                  Settings
+                </Link>
               </>
             )}
 

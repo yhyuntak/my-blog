@@ -11,12 +11,16 @@ interface HomeClientProps {
   featuredPost: PostPreview | null;
   recentPosts: PostPreview[];
   categoryPosts: Array<CategoryWithCount & { posts: PostPreview[] }>;
+  homeHeroTitle: string;
+  homeHeroSubtitle: string;
 }
 
 export default function HomeClient({
   featuredPost,
   recentPosts,
   categoryPosts,
+  homeHeroTitle,
+  homeHeroSubtitle,
 }: HomeClientProps) {
   const router = useRouter();
 
@@ -35,11 +39,10 @@ export default function HomeClient({
         {/* Hero Section */}
         <div className="space-y-4">
           <h1 className="text-4xl font-bold tracking-tight sm:text-5xl">
-            Welcome to My Blog
+            {homeHeroTitle}
           </h1>
           <p className="text-xl text-muted-foreground">
-            A modern blog about technology, development, and everything in
-            between.
+            {homeHeroSubtitle}
           </p>
         </div>
 
