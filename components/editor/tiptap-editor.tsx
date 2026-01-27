@@ -71,7 +71,7 @@ export default function TipTapEditor({
 
   // Update editor content when content prop changes (e.g., loading existing post)
   useEffect(() => {
-    if (editor && content) {
+    if (editor && content && editor.markdown) {
       const currentMarkdown = editor.getMarkdown();
       if (content !== currentMarkdown) {
         // Parse markdown to JSON first, then set content
