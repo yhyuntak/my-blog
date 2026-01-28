@@ -4,6 +4,9 @@ import { getSiteSettings } from "@/lib/settings";
 import { WebSiteSchema } from "@/components/structured-data";
 import HomeClient from "./home-client";
 
+// 60초마다 재검증 (ISR) - 새 포스트가 바로 반영됨
+export const revalidate = 60;
+
 export default async function Home() {
   const allPosts = await getAllPosts();
   const categories = await getAllCategories();

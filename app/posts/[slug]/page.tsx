@@ -13,6 +13,11 @@ interface PostPageProps {
   }>;
 }
 
+// 동적 경로 허용 (새 포스트도 접근 가능)
+export const dynamicParams = true;
+// 60초마다 재검증 (ISR)
+export const revalidate = 60;
+
 export async function generateStaticParams() {
   const posts = await getAllPosts();
   return posts.map((post) => ({
