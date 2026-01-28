@@ -2,13 +2,17 @@ import { getAllPosts } from "@/lib/posts";
 import { getAllCategories } from "@/lib/categories";
 import { getSiteSettings } from "@/lib/settings";
 import { WebSiteSchema } from "@/components/structured-data";
+import { auth } from "@/auth";
 import HomeClient from "./home-client";
 
 // 60초마다 재검증 (ISR) - 새 포스트가 바로 반영됨
 export const revalidate = 60;
 
 export default async function Home() {
-  const allPosts = await getAllPosts();
+  const session = await auth();
+  const isAdmin = session?.user?.role === "admin";
+
+  const allPosts = await getAllPosts(isAdmin);
   const categories = await getAllCategories();
   const settings = await getSiteSettings();
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
@@ -36,6 +40,7 @@ export default async function Home() {
         categoryPosts={categoryPosts}
         homeHeroTitle={settings.homeHeroTitle}
         homeHeroSubtitle={settings.homeHeroSubtitle}
+        isAdmin={isAdmin}
       />
     </>
   );

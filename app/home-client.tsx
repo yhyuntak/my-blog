@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ArrowRight, Clock, FolderTree } from "lucide-react";
+import { ArrowRight, Clock, FolderTree, EyeOff } from "lucide-react";
 import { formatDate } from "@/lib/utils";
 import type { PostPreview } from "@/lib/posts";
 import type { CategoryWithCount } from "@/lib/categories";
@@ -13,6 +13,7 @@ interface HomeClientProps {
   categoryPosts: Array<CategoryWithCount & { posts: PostPreview[] }>;
   homeHeroTitle: string;
   homeHeroSubtitle: string;
+  isAdmin: boolean;
 }
 
 export default function HomeClient({
@@ -21,6 +22,7 @@ export default function HomeClient({
   categoryPosts,
   homeHeroTitle,
   homeHeroSubtitle,
+  isAdmin,
 }: HomeClientProps) {
   const router = useRouter();
 
@@ -82,6 +84,12 @@ export default function HomeClient({
                 </div>
                 <h2 className="text-3xl font-bold tracking-tight group-hover:text-primary transition-colors break-words">
                   {featuredPost.title}
+                  {!featuredPost.published && isAdmin && (
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 text-xs rounded-full bg-yellow-500/10 text-yellow-600 dark:text-yellow-400 ml-2">
+                      <EyeOff className="h-3 w-3" />
+                      Draft
+                    </span>
+                  )}
                 </h2>
                 <p className="text-lg text-muted-foreground break-words">
                   {featuredPost.excerpt}
@@ -122,6 +130,12 @@ export default function HomeClient({
                     </div>
                     <h3 className="font-semibold text-lg group-hover:text-primary transition-colors line-clamp-2 break-words">
                       {post.title}
+                      {!post.published && isAdmin && (
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 text-xs rounded-full bg-yellow-500/10 text-yellow-600 dark:text-yellow-400 ml-2">
+                          <EyeOff className="h-3 w-3" />
+                          Draft
+                        </span>
+                      )}
                     </h3>
                     <p className="text-sm text-muted-foreground line-clamp-3 break-words">
                       {post.excerpt}
@@ -176,6 +190,12 @@ export default function HomeClient({
                         </time>
                         <h3 className="font-semibold group-hover:text-primary transition-colors line-clamp-2 break-words">
                           {post.title}
+                          {!post.published && isAdmin && (
+                            <span className="inline-flex items-center gap-1 px-2 py-0.5 text-xs rounded-full bg-yellow-500/10 text-yellow-600 dark:text-yellow-400 ml-2">
+                              <EyeOff className="h-3 w-3" />
+                              Draft
+                            </span>
+                          )}
                         </h3>
                         <p className="text-sm text-muted-foreground line-clamp-2 break-words">
                           {post.excerpt}

@@ -6,6 +6,7 @@ import { PostCard } from "@/components/post-card";
 import { Pagination } from "@/components/pagination";
 import { CategorySidebar } from "@/components/category-sidebar";
 import { FolderTree, Folder, ChevronRight } from "lucide-react";
+import { auth } from "@/auth";
 
 interface CategoryPageProps {
   params: Promise<{
@@ -36,6 +37,8 @@ export async function generateMetadata({ params }: CategoryPageProps) {
 export default async function CategoryPage({ params, searchParams }: CategoryPageProps) {
   const { slug } = await params;
   const { page, sub } = await searchParams;
+  const session = await auth();
+  const isAdmin = session?.user?.role === "admin";
   const category = await getCategoryBySlug(slug);
 
   if (!category) {
@@ -47,7 +50,7 @@ export default async function CategoryPage({ params, searchParams }: CategoryPag
 
   // Determine which posts to show based on ?sub parameter
   const targetSlug = sub || slug;
-  const postsResult = await getPostsByCategoryPaginated(targetSlug, currentPage, 6);
+  const postsResult = await getPostsByCategoryPaginated(targetSlug, currentPage, 6, isAdmin);
 
   // Find selected subcategory info if sub is present
   const selectedSubcategory = sub ? children.find(c => c.slug === sub) : null;
@@ -134,7 +137,7 @@ export default async function CategoryPage({ params, searchParams }: CategoryPag
                 <div className="space-y-8">
                   <div className="grid gap-6 md:grid-cols-2">
                     {postsResult.items.map((post) => (
-                      <PostCard key={post.slug} post={post} />
+                      <PostCard key={post.slug} post={post} isAdmin={isAdmin} />
                     ))}
                   </div>
 
@@ -161,7 +164,7 @@ export default async function CategoryPage({ params, searchParams }: CategoryPag
               <div className="space-y-8">
                 <div className="grid gap-8 md:grid-cols-2">
                   {postsResult.items.map((post) => (
-                    <PostCard key={post.slug} post={post} />
+                    <PostCard key={post.slug} post={post} isAdmin={isAdmin} />
                   ))}
                 </div>
 

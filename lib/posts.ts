@@ -24,6 +24,7 @@ export interface Post extends PostMatter {
 export interface PostPreview extends PostMatter {
   slug: string;
   readingTime: string;
+  published: boolean;
 }
 
 export async function getPostBySlug(slug: string, includeDraft: boolean = false): Promise<Post | null> {
@@ -87,9 +88,9 @@ export async function getPostContent(slug: string, includeDraft: boolean = false
   return processedContent.toString();
 }
 
-export async function getAllPosts(): Promise<PostPreview[]> {
+export async function getAllPosts(includeDraft: boolean = false): Promise<PostPreview[]> {
   const posts = await prisma.post.findMany({
-    where: { published: true },
+    where: includeDraft ? {} : { published: true },
     include: {
       author: {
         select: {
@@ -129,14 +130,15 @@ export async function getAllPosts(): Promise<PostPreview[]> {
       author: post.author.name || undefined,
       coverImage: post.coverImage || undefined,
       readingTime: stats.text,
+      published: post.published,
     };
   });
 }
 
-export async function getPostsByTag(tag: string): Promise<PostPreview[]> {
+export async function getPostsByTag(tag: string, includeDraft: boolean = false): Promise<PostPreview[]> {
   const posts = await prisma.post.findMany({
     where: {
-      published: true,
+      ...(includeDraft ? {} : { published: true }),
       tags: {
         some: {
           tag: {
@@ -184,14 +186,15 @@ export async function getPostsByTag(tag: string): Promise<PostPreview[]> {
       author: post.author.name || undefined,
       coverImage: post.coverImage || undefined,
       readingTime: stats.text,
+      published: post.published,
     };
   });
 }
 
-export async function getPostsByCategory(categorySlug: string): Promise<PostPreview[]> {
+export async function getPostsByCategory(categorySlug: string, includeDraft: boolean = false): Promise<PostPreview[]> {
   const posts = await prisma.post.findMany({
     where: {
-      published: true,
+      ...(includeDraft ? {} : { published: true }),
       category: {
         slug: categorySlug
       }
@@ -235,6 +238,7 @@ export async function getPostsByCategory(categorySlug: string): Promise<PostPrev
       author: post.author.name || undefined,
       coverImage: post.coverImage || undefined,
       readingTime: stats.text,
+      published: post.published,
     };
   });
 }
@@ -251,14 +255,15 @@ export interface PaginatedResult<T> {
 export async function getPostsByCategoryPaginated(
   categorySlug: string,
   page: number = 1,
-  perPage: number = 6
+  perPage: number = 6,
+  includeDraft: boolean = false
 ): Promise<PaginatedResult<PostPreview>> {
   const skip = (page - 1) * perPage;
 
   const [posts, totalCount] = await Promise.all([
     prisma.post.findMany({
       where: {
-        published: true,
+        ...(includeDraft ? {} : { published: true }),
         category: {
           slug: categorySlug
         }
@@ -291,7 +296,7 @@ export async function getPostsByCategoryPaginated(
     }),
     prisma.post.count({
       where: {
-        published: true,
+        ...(includeDraft ? {} : { published: true }),
         category: {
           slug: categorySlug
         }
@@ -315,6 +320,7 @@ export async function getPostsByCategoryPaginated(
       author: post.author.name || undefined,
       coverImage: post.coverImage || undefined,
       readingTime: stats.text,
+      published: post.published,
     };
   });
 
