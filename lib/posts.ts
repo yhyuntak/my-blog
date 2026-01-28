@@ -18,6 +18,7 @@ export interface Post extends PostMatter {
   slug: string;
   content: string;
   readingTime: string;
+  published: boolean;
 }
 
 export interface PostPreview extends PostMatter {
@@ -25,9 +26,9 @@ export interface PostPreview extends PostMatter {
   readingTime: string;
 }
 
-export async function getPostBySlug(slug: string): Promise<Post | null> {
+export async function getPostBySlug(slug: string, includeDraft: boolean = false): Promise<Post | null> {
   const post = await prisma.post.findUnique({
-    where: { slug, published: true },
+    where: { slug, ...(includeDraft ? {} : { published: true }) },
     include: {
       author: {
         select: {
@@ -68,11 +69,12 @@ export async function getPostBySlug(slug: string): Promise<Post | null> {
     coverImage: post.coverImage || undefined,
     content: post.content,
     readingTime: stats.text,
+    published: post.published,
   };
 }
 
-export async function getPostContent(slug: string): Promise<string | null> {
-  const post = await getPostBySlug(slug);
+export async function getPostContent(slug: string, includeDraft: boolean = false): Promise<string | null> {
+  const post = await getPostBySlug(slug, includeDraft);
   if (!post) {
     return null;
   }
