@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { prisma } from "@/lib/prisma";
 import { remark } from "remark";
 import html from "remark-html";
@@ -27,7 +28,7 @@ export interface PostPreview extends PostMatter {
   published: boolean;
 }
 
-export async function getPostBySlug(slug: string, includeDraft: boolean = false): Promise<Post | null> {
+export const getPostBySlug = cache(async (slug: string, includeDraft: boolean = false): Promise<Post | null> => {
   const post = await prisma.post.findUnique({
     where: { slug, ...(includeDraft ? {} : { published: true }) },
     include: {
@@ -72,7 +73,7 @@ export async function getPostBySlug(slug: string, includeDraft: boolean = false)
     readingTime: stats.text,
     published: post.published,
   };
-}
+});
 
 export async function getPostContent(slug: string, includeDraft: boolean = false): Promise<string | null> {
   const post = await getPostBySlug(slug, includeDraft);
@@ -88,7 +89,7 @@ export async function getPostContent(slug: string, includeDraft: boolean = false
   return processedContent.toString();
 }
 
-export async function getAllPosts(includeDraft: boolean = false): Promise<PostPreview[]> {
+export const getAllPosts = cache(async (includeDraft: boolean = false): Promise<PostPreview[]> => {
   const posts = await prisma.post.findMany({
     where: includeDraft ? {} : { published: true },
     include: {
@@ -133,9 +134,9 @@ export async function getAllPosts(includeDraft: boolean = false): Promise<PostPr
       published: post.published,
     };
   });
-}
+});
 
-export async function getPostsByTag(tag: string, includeDraft: boolean = false): Promise<PostPreview[]> {
+export const getPostsByTag = cache(async (tag: string, includeDraft: boolean = false): Promise<PostPreview[]> => {
   const posts = await prisma.post.findMany({
     where: {
       ...(includeDraft ? {} : { published: true }),
@@ -189,9 +190,9 @@ export async function getPostsByTag(tag: string, includeDraft: boolean = false):
       published: post.published,
     };
   });
-}
+});
 
-export async function getPostsByCategory(categorySlug: string, includeDraft: boolean = false): Promise<PostPreview[]> {
+export const getPostsByCategory = cache(async (categorySlug: string, includeDraft: boolean = false): Promise<PostPreview[]> => {
   const posts = await prisma.post.findMany({
     where: {
       ...(includeDraft ? {} : { published: true }),
@@ -241,7 +242,7 @@ export async function getPostsByCategory(categorySlug: string, includeDraft: boo
       published: post.published,
     };
   });
-}
+});
 
 export interface PaginatedResult<T> {
   items: T[];
@@ -334,7 +335,7 @@ export async function getPostsByCategoryPaginated(
   };
 }
 
-export async function getAllTags(): Promise<{ name: string; slug: string; count: number }[]> {
+export const getAllTags = cache(async (): Promise<{ name: string; slug: string; count: number }[]> => {
   const tags = await prisma.tag.findMany({
     include: {
       _count: {
@@ -351,7 +352,7 @@ export async function getAllTags(): Promise<{ name: string; slug: string; count:
     }))
     .filter(t => t.count > 0)
     .sort((a, b) => b.count - a.count);
-}
+});
 
 // Synchronous versions for server components that need them
 export function getAllPostsSync(): PostPreview[] {

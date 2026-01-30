@@ -5,14 +5,48 @@ import { Search as SearchIcon, X } from "lucide-react";
 import Link from "next/link";
 import Fuse from "fuse.js";
 import type { PostPreview } from "@/lib/posts";
+import readingTime from "reading-time";
 
-interface SearchProps {
-  posts: PostPreview[];
-}
-
-export function Search({ posts }: SearchProps) {
+export function Search() {
   const [isOpen, setIsOpen] = useState(false);
   const [query, setQuery] = useState("");
+  const [posts, setPosts] = useState<PostPreview[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    if (isOpen && posts.length === 0) {
+      setIsLoading(true);
+      fetch('/api/posts')
+        .then(res => res.json())
+        .then(data => {
+          const transformedPosts: PostPreview[] = data.posts.map((post: any) => {
+            const stats = readingTime(post.content);
+            const tags = post.tags.map((pt: any) => ({
+              name: pt.tag.name,
+              slug: pt.tag.slug
+            }));
+
+            return {
+              slug: post.slug,
+              title: post.title,
+              date: post.createdAt,
+              excerpt: post.excerpt || "",
+              tags,
+              category: { name: post.category.name, slug: post.category.slug },
+              author: post.author?.name,
+              coverImage: post.coverImage || undefined,
+              readingTime: stats.text,
+              published: post.published,
+            };
+          });
+          setPosts(transformedPosts);
+        })
+        .catch(err => {
+          console.error('Failed to fetch posts:', err);
+        })
+        .finally(() => setIsLoading(false));
+    }
+  }, [isOpen, posts.length]);
 
   const fuse = useMemo(
     () =>
@@ -105,7 +139,11 @@ export function Search({ posts }: SearchProps) {
           </div>
 
           <div className="max-h-[400px] overflow-y-auto p-2">
-            {query.length === 0 ? (
+            {isLoading ? (
+              <div className="p-8 text-center text-sm text-muted-foreground">
+                Loading posts...
+              </div>
+            ) : query.length === 0 ? (
               <div className="p-8 text-center text-sm text-muted-foreground">
                 Start typing to search posts...
               </div>

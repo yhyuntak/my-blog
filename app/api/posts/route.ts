@@ -17,6 +17,12 @@ export async function GET(request: NextRequest) {
           email: true,
         },
       },
+      category: {
+        select: {
+          name: true,
+          slug: true,
+        },
+      },
       tags: {
         include: {
           tag: true,

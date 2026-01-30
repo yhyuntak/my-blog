@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { prisma } from "@/lib/prisma";
 
 export interface Category {
@@ -23,7 +24,7 @@ export interface CategoryWithParent extends CategoryWithCount {
 }
 
 // Get all categories as a flat list with counts
-export async function getAllCategories(): Promise<CategoryWithCount[]> {
+export const getAllCategories = cache(async (): Promise<CategoryWithCount[]> => {
   const categories = await prisma.category.findMany({
     include: {
       _count: {
@@ -45,10 +46,10 @@ export async function getAllCategories(): Promise<CategoryWithCount[]> {
     updatedAt: cat.updatedAt,
     postCount: cat._count.posts
   }));
-}
+});
 
 // Get categories as a hierarchical tree (only root categories with their children)
-export async function getCategoriesTree(): Promise<CategoryWithChildren[]> {
+export const getCategoriesTree = cache(async (): Promise<CategoryWithChildren[]> => {
   const categories = await prisma.category.findMany({
     where: { parentId: null },
     include: {
@@ -89,10 +90,10 @@ export async function getCategoriesTree(): Promise<CategoryWithChildren[]> {
       postCount: child._count.posts
     }))
   }));
-}
+});
 
 // Get root categories only (no parent)
-export async function getRootCategories(): Promise<CategoryWithCount[]> {
+export const getRootCategories = cache(async (): Promise<CategoryWithCount[]> => {
   const categories = await prisma.category.findMany({
     where: { parentId: null },
     include: {
@@ -115,9 +116,9 @@ export async function getRootCategories(): Promise<CategoryWithCount[]> {
     updatedAt: cat.updatedAt,
     postCount: cat._count.posts
   }));
-}
+});
 
-export async function getCategoryBySlug(slug: string): Promise<CategoryWithParent | null> {
+export const getCategoryBySlug = cache(async (slug: string): Promise<CategoryWithParent | null> => {
   const category = await prisma.category.findUnique({
     where: { slug },
     include: {
@@ -143,7 +144,7 @@ export async function getCategoryBySlug(slug: string): Promise<CategoryWithParen
     postCount: category._count.posts,
     parent: category.parent
   };
-}
+});
 
 export async function getCategoryById(id: string): Promise<Category | null> {
   const category = await prisma.category.findUnique({

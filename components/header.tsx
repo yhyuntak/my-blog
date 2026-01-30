@@ -3,14 +3,12 @@ import { ThemeToggle } from "./theme-toggle";
 import { Search } from "./search";
 import { UserNav } from "./user-nav";
 import { CategoriesDropdown } from "./categories-dropdown";
-import { getAllPosts } from "@/lib/posts";
 import { getCategoriesTree } from "@/lib/categories";
 import { getSiteSettings } from "@/lib/settings";
 import { auth } from "@/auth";
 import { LogIn } from "lucide-react";
 
 export async function Header() {
-  const posts = await getAllPosts();
   const categories = await getCategoriesTree();
   const session = await auth();
   const settings = await getSiteSettings();
@@ -31,7 +29,7 @@ export async function Header() {
             >
               About
             </Link>
-            <Search posts={posts} />
+            <Search />
             {session?.user ? (
               <UserNav user={session.user} />
             ) : (

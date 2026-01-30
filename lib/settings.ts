@@ -1,6 +1,7 @@
+import { cache } from "react";
 import { prisma } from "./prisma";
 
-export async function getSiteSettings() {
+export const getSiteSettings = cache(async () => {
   // First try to find existing settings
   let settings = await prisma.siteSetting.findUnique({
     where: { id: "default" },
@@ -35,4 +36,4 @@ export async function getSiteSettings() {
   }
 
   return settings;
-}
+});
