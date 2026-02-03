@@ -136,6 +136,65 @@ export const getAllPosts = cache(async (includeDraft: boolean = false): Promise<
   });
 });
 
+// Optimized version for homepage - limits results and excludes content field
+export const getRecentPosts = cache(async (
+  limit: number = 10,
+  includeDraft: boolean = false
+): Promise<PostPreview[]> => {
+  const posts = await prisma.post.findMany({
+    where: includeDraft ? {} : { published: true },
+    select: {
+      slug: true,
+      title: true,
+      excerpt: true,
+      coverImage: true,
+      published: true,
+      createdAt: true,
+      content: true, // Needed for readingTime calculation
+      author: {
+        select: {
+          name: true,
+        },
+      },
+      category: {
+        select: {
+          name: true,
+          slug: true,
+        },
+      },
+      tags: {
+        include: {
+          tag: {
+            select: { name: true, slug: true }
+          }
+        }
+      }
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
+    take: limit,
+  });
+
+  return posts.map((post) => {
+    const stats = readingTime(post.content);
+    const tags = post.tags.map(pt => ({name: pt.tag.name, slug: pt.tag.slug}));
+
+    return {
+      slug: post.slug,
+      title: post.title,
+      date: post.createdAt.toISOString(),
+      excerpt: post.excerpt || "",
+      tags,
+      category: { name: post.category.name, slug: post.category.slug },
+      author: post.author.name || undefined,
+      coverImage: post.coverImage || undefined,
+      readingTime: stats.text,
+      published: post.published,
+    };
+  });
+});
+
 export const getPostsByTag = cache(async (tag: string, includeDraft: boolean = false): Promise<PostPreview[]> => {
   const posts = await prisma.post.findMany({
     where: {

@@ -1,69 +1,66 @@
 "use client";
 
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { Search as SearchIcon, X } from "lucide-react";
 import Link from "next/link";
-import Fuse from "fuse.js";
-import type { PostPreview } from "@/lib/posts";
-import readingTime from "reading-time";
+import type { SearchPost } from "@/app/api/posts/search/route";
+import type FuseType from "fuse.js";
+
+// Dynamic import for Fuse.js to reduce initial bundle
+let Fuse: typeof FuseType | null = null;
 
 export function Search() {
   const [isOpen, setIsOpen] = useState(false);
   const [query, setQuery] = useState("");
-  const [posts, setPosts] = useState<PostPreview[]>([]);
+  const [posts, setPosts] = useState<SearchPost[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const fuseRef = useRef<FuseType<SearchPost> | null>(null);
 
+  // Load Fuse.js and posts when search opens
   useEffect(() => {
     if (isOpen && posts.length === 0) {
       setIsLoading(true);
-      fetch('/api/posts')
-        .then(res => res.json())
-        .then(data => {
-          const transformedPosts: PostPreview[] = data.posts.map((post: any) => {
-            const stats = readingTime(post.content);
-            const tags = post.tags.map((pt: any) => ({
-              name: pt.tag.name,
-              slug: pt.tag.slug
-            }));
 
-            return {
-              slug: post.slug,
-              title: post.title,
-              date: post.createdAt,
-              excerpt: post.excerpt || "",
-              tags,
-              category: { name: post.category.name, slug: post.category.slug },
-              author: post.author?.name,
-              coverImage: post.coverImage || undefined,
-              readingTime: stats.text,
-              published: post.published,
-            };
-          });
-          setPosts(transformedPosts);
-        })
-        .catch(err => {
-          console.error('Failed to fetch posts:', err);
-        })
-        .finally(() => setIsLoading(false));
+      // Load Fuse.js dynamically
+      const loadFuseAndPosts = async () => {
+        try {
+          // Parallel load Fuse.js and posts
+          const [fuseModule, response] = await Promise.all([
+            import("fuse.js"),
+            fetch("/api/posts/search"),
+          ]);
+
+          Fuse = fuseModule.default;
+          const data = await response.json();
+          setPosts(data.posts);
+        } catch (err) {
+          console.error("Failed to load search:", err);
+        } finally {
+          setIsLoading(false);
+        }
+      };
+
+      loadFuseAndPosts();
     }
   }, [isOpen, posts.length]);
 
-  const fuse = useMemo(
-    () =>
-      new Fuse(posts, {
-        keys: ["title", "excerpt", "tags.name", "category"],
+  // Create Fuse instance when posts are loaded
+  useEffect(() => {
+    if (posts.length > 0 && Fuse) {
+      fuseRef.current = new Fuse(posts, {
+        keys: ["title", "excerpt", "tags", "categoryName"],
         threshold: 0.3,
-      }),
-    [posts]
-  );
+      });
+    }
+  }, [posts]);
 
-  const results = useMemo(() => {
-    if (query.length > 0) {
-      const searchResults = fuse.search(query);
+  const results = useMemo((): SearchPost[] => {
+    if (query.length > 0 && fuseRef.current) {
+      const searchResults = fuseRef.current.search(query);
       return searchResults.map((result) => result.item);
     }
     return [];
-  }, [query, fuse]);
+  }, [query, posts]); // posts dependency ensures results update after posts load
 
   const handleClose = useCallback(() => {
     setIsOpen(false);
@@ -71,15 +68,18 @@ export function Search() {
     document.body.style.overflow = "unset";
   }, []);
 
-  const handleKeyDown = useCallback((e: KeyboardEvent) => {
-    if ((e.metaKey || e.ctrlKey) && e.key === "k") {
-      e.preventDefault();
-      setIsOpen(true);
-    }
-    if (e.key === "Escape") {
-      handleClose();
-    }
-  }, [handleClose]);
+  const handleKeyDown = useCallback(
+    (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === "k") {
+        e.preventDefault();
+        setIsOpen(true);
+      }
+      if (e.key === "Escape") {
+        handleClose();
+      }
+    },
+    [handleClose]
+  );
 
   useEffect(() => {
     document.addEventListener("keydown", handleKeyDown);

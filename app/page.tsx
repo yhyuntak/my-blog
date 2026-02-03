@@ -1,4 +1,5 @@
-import { getAllPosts } from "@/lib/posts";
+import { getRecentPosts } from "@/lib/posts";
+import { getPostsByCategory } from "@/lib/posts";
 import { getAllCategories } from "@/lib/categories";
 import { getSiteSettings } from "@/lib/settings";
 import { WebSiteSchema } from "@/components/structured-data";
@@ -12,24 +13,30 @@ export default async function Home() {
   const session = await auth();
   const isAdmin = session?.user?.role === "admin";
 
-  const allPosts = await getAllPosts(isAdmin);
-  const categories = await getAllCategories();
-  const settings = await getSiteSettings();
+  // Parallel fetch for better performance
+  const [recentPostsData, categories, settings] = await Promise.all([
+    getRecentPosts(7, isAdmin), // 1 featured + 6 recent
+    getAllCategories(),
+    getSiteSettings(),
+  ]);
+
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
 
   // Featured post (most recent)
-  const featuredPost = allPosts[0] || null;
+  const featuredPost = recentPostsData[0] || null;
 
   // Recent posts (next 6 posts after featured)
-  const recentPosts = allPosts.slice(1, 7);
+  const recentPosts = recentPostsData.slice(1, 7);
 
-  // Get posts by category (3 per category)
-  const categoryPosts = categories.map((category) => ({
-    ...category,
-    posts: allPosts
-      .filter((post) => post.category.slug === category.slug)
-      .slice(0, 3),
-  }));
+  // Get posts by category (3 per category) - parallel fetch
+  const categoryPostsPromises = categories.map(async (category) => {
+    const posts = await getPostsByCategory(category.slug, isAdmin);
+    return {
+      ...category,
+      posts: posts.slice(0, 3),
+    };
+  });
+  const categoryPosts = await Promise.all(categoryPostsPromises);
 
   return (
     <>

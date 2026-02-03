@@ -1,7 +1,9 @@
 import { cache } from "react";
+import { unstable_cache } from "next/cache";
 import { prisma } from "./prisma";
+import { CACHE_TAGS, CACHE_REVALIDATE } from "./cache";
 
-export const getSiteSettings = cache(async () => {
+const getSiteSettingsBase = async () => {
   // First try to find existing settings
   let settings = await prisma.siteSetting.findUnique({
     where: { id: "default" },
@@ -36,4 +38,12 @@ export const getSiteSettings = cache(async () => {
   }
 
   return settings;
-});
+};
+
+// Using unstable_cache for cross-request caching + React cache for request deduplication
+export const getSiteSettings = cache(
+  unstable_cache(getSiteSettingsBase, ["site-settings"], {
+    tags: [CACHE_TAGS.settings],
+    revalidate: CACHE_REVALIDATE.short,
+  })
+);

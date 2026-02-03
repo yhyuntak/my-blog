@@ -1,5 +1,7 @@
 import { cache } from "react";
+import { unstable_cache } from "next/cache";
 import { prisma } from "@/lib/prisma";
+import { CACHE_TAGS, CACHE_REVALIDATE } from "./cache";
 
 export interface Category {
   id: string;
@@ -49,7 +51,8 @@ export const getAllCategories = cache(async (): Promise<CategoryWithCount[]> => 
 });
 
 // Get categories as a hierarchical tree (only root categories with their children)
-export const getCategoriesTree = cache(async (): Promise<CategoryWithChildren[]> => {
+// Using unstable_cache for cross-request caching + React cache for request deduplication
+const getCategoriesTreeBase = async (): Promise<CategoryWithChildren[]> => {
   const categories = await prisma.category.findMany({
     where: { parentId: null },
     include: {
@@ -90,7 +93,14 @@ export const getCategoriesTree = cache(async (): Promise<CategoryWithChildren[]>
       postCount: child._count.posts
     }))
   }));
-});
+};
+
+export const getCategoriesTree = cache(
+  unstable_cache(getCategoriesTreeBase, ["categories-tree"], {
+    tags: [CACHE_TAGS.categories],
+    revalidate: CACHE_REVALIDATE.short,
+  })
+);
 
 // Get root categories only (no parent)
 export const getRootCategories = cache(async (): Promise<CategoryWithCount[]> => {

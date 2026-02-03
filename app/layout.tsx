@@ -1,10 +1,12 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import { Geist, Geist_Mono } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { ThemeProvider } from "@/components/theme-provider";
 import { SessionProvider } from "@/components/session-provider";
 import { Header } from "@/components/header";
+import { HeaderSkeleton } from "@/components/header-skeleton";
 import { Footer } from "@/components/footer";
 import "./globals.css";
 
@@ -83,7 +85,9 @@ export default function RootLayout({
             disableTransitionOnChange
           >
             <div className="relative flex min-h-screen flex-col">
-              <Header />
+              <Suspense fallback={<HeaderSkeleton />}>
+                <Header />
+              </Suspense>
               <main className="flex-1">{children}</main>
               <Footer />
             </div>

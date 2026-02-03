@@ -13,8 +13,8 @@ export default async function AdminPage() {
     redirect("/");
   }
 
-  // Get stats and all posts (including drafts)
-  const [totalUsers, totalComments, recentComments, allPosts] = await Promise.all([
+  // Get stats and recent posts (including drafts)
+  const [totalUsers, totalComments, recentComments, recentPosts, postStats] = await Promise.all([
     prisma.user.count(),
     prisma.comment.count(),
     prisma.comment.findMany({
@@ -31,6 +31,7 @@ export default async function AdminPage() {
     }),
     prisma.post.findMany({
       orderBy: { createdAt: "desc" },
+      take: 20, // Limit for performance
       select: {
         id: true,
         title: true,
@@ -44,11 +45,15 @@ export default async function AdminPage() {
         },
       },
     }),
+    // Separate count queries for stats
+    Promise.all([
+      prisma.post.count(),
+      prisma.post.count({ where: { published: true } }),
+      prisma.post.count({ where: { published: false } }),
+    ]),
   ]);
 
-  const totalPosts = allPosts.length;
-  const publishedCount = allPosts.filter(p => p.published).length;
-  const draftCount = allPosts.filter(p => !p.published).length;
+  const [totalPosts, publishedCount, draftCount] = postStats;
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-16 lg:px-8">
@@ -147,7 +152,7 @@ export default async function AdminPage() {
         {/* All Posts */}
         <div className="space-y-4">
           <div className="flex items-center justify-between">
-            <h2 className="text-2xl font-semibold">All Posts</h2>
+            <h2 className="text-2xl font-semibold">Recent Posts</h2>
             <Link
               href="/admin/posts/new"
               className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-colors cursor-pointer text-sm"
@@ -157,12 +162,12 @@ export default async function AdminPage() {
             </Link>
           </div>
           <div className="rounded-lg border divide-y">
-            {allPosts.length === 0 ? (
+            {recentPosts.length === 0 ? (
               <div className="p-8 text-center text-muted-foreground">
                 No posts yet. Create your first post!
               </div>
             ) : (
-              allPosts.map((post) => (
+              recentPosts.map((post) => (
                 <div
                   key={post.id}
                   className="p-4 flex items-center justify-between gap-4 hover:bg-secondary/50 transition-colors"
