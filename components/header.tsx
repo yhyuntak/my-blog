@@ -1,17 +1,29 @@
 import Link from "next/link";
+import { unstable_cache } from "next/cache";
 import { ThemeToggle } from "./theme-toggle";
 import { Search } from "./search";
-import { UserNav } from "./user-nav";
+import { AuthSection } from "./auth-section";
 import { CategoriesDropdown } from "./categories-dropdown";
 import { getCategoriesTree } from "@/lib/categories";
 import { getSiteSettings } from "@/lib/settings";
-import { auth } from "@/auth";
-import { LogIn } from "lucide-react";
+
+const getCachedCategories = unstable_cache(
+  async () => getCategoriesTree(),
+  ["categories-tree"],
+  { revalidate: 60 }
+);
+
+const getCachedSettings = unstable_cache(
+  async () => getSiteSettings(),
+  ["site-settings"],
+  { revalidate: 60 }
+);
 
 export async function Header() {
-  const categories = await getCategoriesTree();
-  const session = await auth();
-  const settings = await getSiteSettings();
+  const [categories, settings] = await Promise.all([
+    getCachedCategories(),
+    getCachedSettings(),
+  ]);
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -30,17 +42,7 @@ export async function Header() {
               About
             </Link>
             <Search />
-            {session?.user ? (
-              <UserNav user={session.user} />
-            ) : (
-              <Link
-                href="/auth/signin"
-                className="flex items-center gap-2 px-3 py-1.5 text-sm rounded-lg border hover:bg-secondary transition-colors cursor-pointer"
-              >
-                <LogIn className="h-4 w-4" />
-                Sign in
-              </Link>
-            )}
+            <AuthSection />
             <ThemeToggle />
           </nav>
         </div>
