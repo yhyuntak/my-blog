@@ -5,12 +5,12 @@ import { useRouter } from "next/navigation";
 import { ArrowRight, Clock, FolderTree, EyeOff } from "lucide-react";
 import { formatDate } from "@/lib/utils";
 import type { PostPreview } from "@/lib/posts";
-import type { CategoryWithCount } from "@/lib/categories";
+import type { CategoryWithPosts } from "@/lib/categories";
 
 interface HomeClientProps {
   featuredPost: PostPreview | null;
   recentPosts: PostPreview[];
-  categoryPosts: Array<CategoryWithCount & { posts: PostPreview[] }>;
+  categoryPosts: CategoryWithPosts[];
   homeHeroTitle: string;
   homeHeroSubtitle: string;
   isAdmin: boolean;

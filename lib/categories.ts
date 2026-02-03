@@ -244,3 +244,63 @@ export function slugify(text: string): string {
     .replace(/[\s_-]+/g, '-')
     .replace(/^-+|-+$/g, '');
 }
+
+// Get categories with recent posts - optimized single query for homepage
+import readingTime from "reading-time";
+
+export interface CategoryWithPosts extends CategoryWithCount {
+  posts: Array<{
+    slug: string;
+    title: string;
+    date: string;
+    excerpt: string;
+    readingTime: string;
+    published: boolean;
+    category: { name: string; slug: string };
+  }>;
+}
+
+export const getCategoriesWithRecentPosts = cache(async (postsPerCategory: number = 3): Promise<CategoryWithPosts[]> => {
+  // Get all root categories with their recent posts in one query
+  const categories = await prisma.category.findMany({
+    where: { parentId: null },
+    include: {
+      _count: {
+        select: { posts: { where: { published: true } } }
+      },
+      posts: {
+        where: { published: true },
+        orderBy: { createdAt: "desc" },
+        take: postsPerCategory,
+        select: {
+          slug: true,
+          title: true,
+          excerpt: true,
+          content: true, // for readingTime
+          createdAt: true,
+        }
+      }
+    },
+    orderBy: { name: "asc" }
+  });
+
+  return categories.map(cat => ({
+    id: cat.id,
+    name: cat.name,
+    slug: cat.slug,
+    description: cat.description,
+    parentId: cat.parentId,
+    createdAt: cat.createdAt,
+    updatedAt: cat.updatedAt,
+    postCount: cat._count.posts,
+    posts: cat.posts.map(post => ({
+      slug: post.slug,
+      title: post.title,
+      date: post.createdAt.toISOString(),
+      excerpt: post.excerpt || "",
+      readingTime: readingTime(post.content).text,
+      published: true, // Only published posts are fetched
+      category: { name: cat.name, slug: cat.slug },
+    }))
+  }));
+});
