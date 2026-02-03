@@ -18,6 +18,8 @@
   "dependencies": {
     "@auth/prisma-adapter": "^2.11.1",
     "@floating-ui/dom": "^1.7.4",
+    "@neondatabase/serverless": "^0.10.0",
+    "@prisma/adapter-neon": "^5.22.0",
     "@prisma/client": "5.22.0",
     "@tailwindcss/typography": "^0.5.19",
     "@tiptap/extension-bubble-menu": "^3.17.1",

@@ -19,3 +19,8 @@
   - architecture/ssr-performance.md
   - nextjs/optimization.md
 - save-para 스킬 개선 피드백 저장
+
+### Phase 9: Neon Serverless Driver
+- @neondatabase/serverless + @prisma/adapter-neon 적용
+- TCP → HTTP 기반 연결로 Cold Start 개선
+- 예상: TTFB 2.2초 → ~500ms
