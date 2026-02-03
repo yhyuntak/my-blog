@@ -5,6 +5,7 @@ import { useSession } from "next-auth/react";
 import { formatDistanceToNow } from "date-fns";
 import { Trash2, Edit2, X, Check } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 
 interface Comment {
   id: string;
@@ -123,10 +124,12 @@ export function Comments({ postSlug }: CommentsProps) {
         <form onSubmit={handleSubmit} className="mb-8">
           <div className="flex gap-3">
             {session.user.image && (
-              <img
+              <Image
                 src={session.user.image}
                 alt={session.user.name || "User"}
-                className="h-10 w-10 rounded-full"
+                width={40}
+                height={40}
+                className="rounded-full"
               />
             )}
             <div className="flex-1">
@@ -176,10 +179,12 @@ export function Comments({ postSlug }: CommentsProps) {
           comments.map((comment) => (
             <div key={comment.id} className="flex gap-3">
               {comment.authorImage && (
-                <img
+                <Image
                   src={comment.authorImage}
                   alt={comment.authorName}
-                  className="h-10 w-10 rounded-full"
+                  width={40}
+                  height={40}
+                  className="rounded-full"
                 />
               )}
               <div className="flex-1">

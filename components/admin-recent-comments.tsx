@@ -4,6 +4,7 @@ import { useState } from "react";
 import { formatDistanceToNow } from "date-fns";
 import { Trash2 } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 
 interface Comment {
   id: string;
@@ -58,10 +59,12 @@ export function AdminRecentComments({ initialComments }: AdminRecentCommentsProp
         <div key={comment.id} className="p-4 hover:bg-secondary/50 transition-colors">
           <div className="flex gap-3">
             {comment.authorImage && (
-              <img
+              <Image
                 src={comment.authorImage}
                 alt={comment.authorName}
-                className="h-10 w-10 rounded-full"
+                width={40}
+                height={40}
+                className="rounded-full"
               />
             )}
             <div className="flex-1 min-w-0">

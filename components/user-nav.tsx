@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import { User, LogOut, Settings, Shield, Plus, Github, FolderTree } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 import { Session } from "next-auth";
 import { signOut } from "next-auth/react";
 
@@ -35,10 +36,12 @@ export function UserNav({ user }: UserNavProps) {
         className="flex items-center gap-2 rounded-lg hover:bg-secondary px-2 py-1.5 transition-colors cursor-pointer"
       >
         {user.image ? (
-          <img
+          <Image
             src={user.image}
             alt={user.name || "User"}
-            className="h-8 w-8 rounded-full"
+            width={32}
+            height={32}
+            className="rounded-full"
           />
         ) : (
           <div className="h-8 w-8 rounded-full bg-secondary flex items-center justify-center">
