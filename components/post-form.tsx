@@ -244,22 +244,23 @@ export function PostForm({ initialData, isEdit = false }: PostFormProps) {
 
           <div>
             <label htmlFor="slug" className="block text-sm font-medium mb-2">
-              Slug * {isEdit && "(cannot be changed)"}
+              Slug {isEdit && initialData?.published && "(cannot be changed)"}
             </label>
             <input
               type="text"
               id="slug"
-              required
               value={formData.slug}
               onChange={(e) =>
                 setFormData((prev) => ({ ...prev, slug: e.target.value }))
               }
-              disabled={isEdit}
+              disabled={isEdit && initialData?.published}
               className="w-full px-4 py-2 rounded-lg border bg-background focus:outline-none focus:ring-2 focus:ring-primary disabled:opacity-50 disabled:cursor-not-allowed"
-              placeholder="post-slug"
+              placeholder="auto-generated-if-empty"
             />
             <p className="text-xs text-muted-foreground mt-1">
-              SEO-friendly URL (e.g., nextjs-performance-guide)
+              {isEdit && initialData?.published
+                ? "Published posts cannot change slug"
+                : "Leave empty to auto-generate from title"}
             </p>
           </div>
 

@@ -37,6 +37,28 @@ export async function GET(request: NextRequest) {
   return NextResponse.json({ posts });
 }
 
+// Helper function to generate slug from title
+function generateSlug(title: string): string {
+  return title
+    .toLowerCase()
+    .replace(/[^a-z0-9가-힣]+/g, '-')
+    .replace(/^-|-$/g, '')
+    || `post-${Date.now()}`;
+}
+
+// Helper function to ensure unique slug
+async function ensureUniqueSlug(baseSlug: string): Promise<string> {
+  let slug = baseSlug;
+  let counter = 2;
+
+  while (await prisma.post.findUnique({ where: { slug } })) {
+    slug = `${baseSlug}-${counter}`;
+    counter++;
+  }
+
+  return slug;
+}
+
 // POST /api/posts - Create new post (admin only)
 export async function POST(request: NextRequest) {
   const session = await auth();
@@ -47,7 +69,7 @@ export async function POST(request: NextRequest) {
 
   try {
     const body = await request.json();
-    const { title, slug, content, excerpt, coverImage, categoryId, tags, published } = body;
+    let { title, slug, content, excerpt, coverImage, categoryId, tags, published } = body;
 
     if (!categoryId) {
       return NextResponse.json(
@@ -56,17 +78,13 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Check if slug already exists
-    const existing = await prisma.post.findUnique({
-      where: { slug },
-    });
-
-    if (existing) {
-      return NextResponse.json(
-        { error: "A post with this slug already exists" },
-        { status: 400 }
-      );
+    // Auto-generate slug if empty
+    if (!slug || slug.trim() === '') {
+      slug = generateSlug(title);
     }
+
+    // Ensure slug is unique
+    slug = await ensureUniqueSlug(slug);
 
     // Create post with tag relationships
     const post = await prisma.post.create({

@@ -44,6 +44,32 @@ export async function GET(request: NextRequest, context: RouteContext) {
   return NextResponse.json({ post });
 }
 
+// Helper function to generate slug from title
+function generateSlug(title: string): string {
+  return title
+    .toLowerCase()
+    .replace(/[^a-z0-9가-힣]+/g, '-')
+    .replace(/^-|-$/g, '')
+    || `post-${Date.now()}`;
+}
+
+// Helper function to ensure unique slug
+async function ensureUniqueSlug(baseSlug: string, excludeSlug?: string): Promise<string> {
+  let slug = baseSlug;
+  let counter = 2;
+
+  while (true) {
+    const existing = await prisma.post.findUnique({ where: { slug } });
+    if (!existing || existing.slug === excludeSlug) {
+      break;
+    }
+    slug = `${baseSlug}-${counter}`;
+    counter++;
+  }
+
+  return slug;
+}
+
 // PUT /api/posts/[slug] - Update post (admin only)
 export async function PUT(request: NextRequest, context: RouteContext) {
   const { slug } = await context.params;
@@ -55,7 +81,7 @@ export async function PUT(request: NextRequest, context: RouteContext) {
 
   try {
     const body = await request.json();
-    const { title, content, excerpt, coverImage, categoryId, tags, published } = body;
+    let { title, slug: newSlug, content, excerpt, coverImage, categoryId, tags, published } = body;
 
     // Get post to access its ID
     const existingPost = await prisma.post.findUnique({
@@ -64,6 +90,25 @@ export async function PUT(request: NextRequest, context: RouteContext) {
 
     if (!existingPost) {
       return NextResponse.json({ error: "Post not found" }, { status: 404 });
+    }
+
+    // Handle slug changes (only allowed for drafts)
+    let finalSlug = slug; // Keep original by default
+
+    if (newSlug && newSlug !== slug) {
+      // Published posts cannot change slug
+      if (existingPost.published) {
+        return NextResponse.json(
+          { error: "Cannot change slug of published post" },
+          { status: 400 }
+        );
+      }
+
+      // Draft posts can change slug
+      finalSlug = await ensureUniqueSlug(newSlug, slug);
+    } else if (!existingPost.published && (!newSlug || newSlug.trim() === '')) {
+      // Auto-generate slug if empty for drafts
+      finalSlug = await ensureUniqueSlug(generateSlug(title), slug);
     }
 
     // Delete existing tag relationships
@@ -98,6 +143,7 @@ export async function PUT(request: NextRequest, context: RouteContext) {
       where: { slug },
       data: {
         title,
+        slug: finalSlug,
         content,
         excerpt: excerpt || "",
         coverImage: coverImage || null,
