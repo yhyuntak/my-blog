@@ -101,7 +101,7 @@ export default async function PostPage({ params }: PostPageProps) {
             <ArrowLeft className="mr-2 h-4 w-4" />
             {post.category ? `Back to ${post.category.name}` : "Back to posts"}
           </Link>
-          <PostAdminActions slug={slug} />
+          <PostAdminActions slug={slug} title={post.title} />
         </div>
 
         <header className="space-y-6 mb-12">
