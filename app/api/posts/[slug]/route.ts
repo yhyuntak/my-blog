@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 
@@ -169,6 +170,9 @@ export async function PUT(request: NextRequest, context: RouteContext) {
       },
     });
 
+    // 캐시 무효화
+    revalidatePath("/");
+
     return NextResponse.json({ post });
   } catch (error) {
     console.error("Error updating post:", error);
@@ -192,6 +196,9 @@ export async function DELETE(request: NextRequest, context: RouteContext) {
     await prisma.post.delete({
       where: { slug },
     });
+
+    // 캐시 무효화 - 홈페이지와 포스트 목록 갱신
+    revalidatePath("/");
 
     return NextResponse.json({ success: true });
   } catch (error) {
