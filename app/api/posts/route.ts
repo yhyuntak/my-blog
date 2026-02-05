@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 
@@ -139,6 +139,7 @@ export async function POST(request: NextRequest) {
     });
 
     // 캐시 무효화
+    revalidateTag("homepage-data", { expire: 0 });
     revalidatePath("/");
 
     return NextResponse.json({ post }, { status: 201 });

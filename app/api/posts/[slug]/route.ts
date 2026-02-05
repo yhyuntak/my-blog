@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 
@@ -171,6 +171,7 @@ export async function PUT(request: NextRequest, context: RouteContext) {
     });
 
     // 캐시 무효화
+    revalidateTag("homepage-data", { expire: 0 });
     revalidatePath("/");
 
     return NextResponse.json({ post });
@@ -198,6 +199,7 @@ export async function DELETE(request: NextRequest, context: RouteContext) {
     });
 
     // 캐시 무효화 - 홈페이지와 포스트 목록 갱신
+    revalidateTag("homepage-data", { expire: 0 });
     revalidatePath("/");
 
     return NextResponse.json({ success: true });
