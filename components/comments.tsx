@@ -124,13 +124,15 @@ export function Comments({ postSlug }: CommentsProps) {
         <form onSubmit={handleSubmit} className="mb-8">
           <div className="flex gap-3">
             {session.user.image && (
-              <Image
-                src={session.user.image}
-                alt={session.user.name || "User"}
-                width={40}
-                height={40}
-                className="rounded-full"
-              />
+              <div className="w-10 h-10 shrink-0">
+                <Image
+                  src={session.user.image}
+                  alt={session.user.name || "User"}
+                  width={40}
+                  height={40}
+                  className="rounded-full object-cover w-full h-full"
+                />
+              </div>
             )}
             <div className="flex-1">
               <textarea
@@ -179,13 +181,15 @@ export function Comments({ postSlug }: CommentsProps) {
           comments.map((comment) => (
             <div key={comment.id} className="flex gap-3">
               {comment.authorImage && (
-                <Image
-                  src={comment.authorImage}
-                  alt={comment.authorName}
-                  width={40}
-                  height={40}
-                  className="rounded-full"
-                />
+                <div className="w-10 h-10 shrink-0">
+                  <Image
+                    src={comment.authorImage}
+                    alt={comment.authorName}
+                    width={40}
+                    height={40}
+                    className="rounded-full object-cover w-full h-full"
+                  />
+                </div>
               )}
               <div className="flex-1">
                 <div className="flex items-center gap-2 mb-1">
