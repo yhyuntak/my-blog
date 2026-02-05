@@ -6,6 +6,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Comments } from "@/components/comments";
 import { BlogPostingSchema } from "@/components/structured-data";
+import { PostAdminActions } from "@/components/post-admin-actions";
 
 interface PostPageProps {
   params: Promise<{
@@ -100,6 +101,7 @@ export default async function PostPage({ params }: PostPageProps) {
             <ArrowLeft className="mr-2 h-4 w-4" />
             {post.category ? `Back to ${post.category.name}` : "Back to posts"}
           </Link>
+          <PostAdminActions slug={slug} />
         </div>
 
         <header className="space-y-6 mb-12">
