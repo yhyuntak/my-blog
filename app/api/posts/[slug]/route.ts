@@ -74,10 +74,13 @@ async function ensureUniqueSlug(baseSlug: string, excludeSlug?: string): Promise
 // PUT /api/posts/[slug] - Update post (admin only)
 export async function PUT(request: NextRequest, context: RouteContext) {
   const { slug } = await context.params;
+  const bypassAuth = process.env.NODE_ENV === "development" && process.env.DEV_BYPASS_AUTH === "true";
   const session = await auth();
 
-  if (!session?.user || session.user.role !== "admin") {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (!bypassAuth) {
+    if (!session?.user || session.user.role !== "admin") {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
   }
 
   try {
@@ -187,10 +190,13 @@ export async function PUT(request: NextRequest, context: RouteContext) {
 // DELETE /api/posts/[slug] - Delete post (admin only)
 export async function DELETE(request: NextRequest, context: RouteContext) {
   const { slug } = await context.params;
+  const bypassAuth = process.env.NODE_ENV === "development" && process.env.DEV_BYPASS_AUTH === "true";
   const session = await auth();
 
-  if (!session?.user || session.user.role !== "admin") {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (!bypassAuth) {
+    if (!session?.user || session.user.role !== "admin") {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
   }
 
   try {

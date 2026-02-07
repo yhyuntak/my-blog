@@ -7,6 +7,7 @@ import { notFound } from "next/navigation";
 import { Comments } from "@/components/comments";
 import { BlogPostingSchema } from "@/components/structured-data";
 import { PostAdminActions } from "@/components/post-admin-actions";
+import { auth } from "@/auth";
 
 interface PostPageProps {
   params: Promise<{
@@ -24,7 +25,7 @@ export async function generateStaticParams() {
   }));
 }
 
-// Cache post data
+// Cache post data (published only)
 const getCachedPost = unstable_cache(
   async (slug: string) => {
     const post = await getPostBySlug(slug);
@@ -36,9 +37,22 @@ const getCachedPost = unstable_cache(
   { revalidate: 60 }
 );
 
+// Direct fetch for admin (includes drafts, no cache)
+async function getPostData(slug: string, includeDraft: boolean) {
+  const post = await getPostBySlug(slug, includeDraft);
+  if (!post) return null;
+  const content = await getPostContent(slug, includeDraft);
+  return { post, content };
+}
+
 export async function generateMetadata({ params }: PostPageProps) {
   const { slug } = await params;
-  const data = await getCachedPost(slug);
+  const session = await auth();
+  const isAdmin = session?.user?.role === "admin";
+
+  const data = isAdmin
+    ? await getPostData(slug, true)
+    : await getCachedPost(slug);
 
   if (!data?.post) {
     return { title: "Post Not Found" };
@@ -74,7 +88,12 @@ export async function generateMetadata({ params }: PostPageProps) {
 
 export default async function PostPage({ params }: PostPageProps) {
   const { slug } = await params;
-  const data = await getCachedPost(slug);
+  const session = await auth();
+  const isAdmin = session?.user?.role === "admin";
+
+  const data = isAdmin
+    ? await getPostData(slug, true)
+    : await getCachedPost(slug);
 
   if (!data?.post || !data?.content) {
     notFound();
@@ -106,6 +125,7 @@ export default async function PostPage({ params }: PostPageProps) {
 
         <header className="space-y-6 mb-12">
           <h1 className="text-4xl font-bold tracking-tight sm:text-5xl break-words">
+            {!post.published && <span className="text-yellow-600 dark:text-yellow-400">[Draft] </span>}
             {post.title}
           </h1>
 

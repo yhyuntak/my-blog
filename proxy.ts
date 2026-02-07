@@ -4,8 +4,11 @@ import { NextResponse } from "next/server";
 export default auth((req) => {
   const { pathname } = req.nextUrl;
 
+  // DEV: 개발 환경에서 인증 우회 (테스트용)
+  const bypassAuth = process.env.NODE_ENV === "development" && process.env.DEV_BYPASS_AUTH === "true";
+
   // Protect /admin routes
-  if (pathname.startsWith("/admin")) {
+  if (pathname.startsWith("/admin") && !bypassAuth) {
     if (!req.auth?.user) {
       return NextResponse.redirect(new URL("/auth/signin", req.url));
     }

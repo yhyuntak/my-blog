@@ -3,10 +3,14 @@ import { redirect } from "next/navigation";
 import { PostForm } from "@/components/post-form";
 
 export default async function NewPostPage() {
-  const session = await auth();
+  // DEV: 개발 환경에서 인증 우회 (테스트용)
+  const bypassAuth = process.env.NODE_ENV === "development" && process.env.DEV_BYPASS_AUTH === "true";
 
-  if (!session?.user || session.user.role !== "admin") {
-    redirect("/");
+  if (!bypassAuth) {
+    const session = await auth();
+    if (!session?.user || session.user.role !== "admin") {
+      redirect("/");
+    }
   }
 
   return (
