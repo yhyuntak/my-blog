@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { revalidatePath, revalidateTag } from "next/cache";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
+import { checkAdminAuth } from "@/lib/api-auth";
 
 // GET /api/posts - Get all posts (admin can see unpublished)
 export async function GET(request: NextRequest) {
@@ -62,13 +63,13 @@ async function ensureUniqueSlug(baseSlug: string): Promise<string> {
 
 // POST /api/posts - Create new post (admin only)
 export async function POST(request: NextRequest) {
-  const bypassAuth = process.env.NODE_ENV === "development" && process.env.DEV_BYPASS_AUTH === "true";
-  const session = await auth();
-  if (!bypassAuth) {
-    if (!session?.user || session.user.role !== "admin") {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+  const authResult = await checkAdminAuth(request);
+  if (!authResult.authorized) {
+    return NextResponse.json({ error: authResult.error }, { status: 401 });
   }
+
+  // For authorId: use session user if available, otherwise fall back to first admin
+  const session = authResult.method === "session" ? await auth() : null;
 
   try {
     const body = await request.json();

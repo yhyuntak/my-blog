@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { revalidatePath, revalidateTag } from "next/cache";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
+import { checkAdminAuth } from "@/lib/api-auth";
 
 interface RouteContext {
   params: Promise<{
@@ -74,13 +75,9 @@ async function ensureUniqueSlug(baseSlug: string, excludeSlug?: string): Promise
 // PUT /api/posts/[slug] - Update post (admin only)
 export async function PUT(request: NextRequest, context: RouteContext) {
   const { slug } = await context.params;
-  const bypassAuth = process.env.NODE_ENV === "development" && process.env.DEV_BYPASS_AUTH === "true";
-  const session = await auth();
-
-  if (!bypassAuth) {
-    if (!session?.user || session.user.role !== "admin") {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+  const authResult = await checkAdminAuth(request);
+  if (!authResult.authorized) {
+    return NextResponse.json({ error: authResult.error }, { status: 401 });
   }
 
   try {
@@ -190,13 +187,9 @@ export async function PUT(request: NextRequest, context: RouteContext) {
 // DELETE /api/posts/[slug] - Delete post (admin only)
 export async function DELETE(request: NextRequest, context: RouteContext) {
   const { slug } = await context.params;
-  const bypassAuth = process.env.NODE_ENV === "development" && process.env.DEV_BYPASS_AUTH === "true";
-  const session = await auth();
-
-  if (!bypassAuth) {
-    if (!session?.user || session.user.role !== "admin") {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+  const authResult = await checkAdminAuth(request);
+  if (!authResult.authorized) {
+    return NextResponse.json({ error: authResult.error }, { status: 401 });
   }
 
   try {
